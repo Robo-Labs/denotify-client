@@ -1,0 +1,55 @@
+{
+	"version": "0.0.0",
+	"type": "module",
+	"name": "denotify-client",
+	"umd:name": "denotify-client",
+	"repository": "robo-labs/denotify-client",
+	"description": "Client module for the Robo Labs DeNotify Crypto Alerts API",
+	"unpkg": "dist/index.min.js",
+	"module": "dist/index.mjs",
+	"main": "dist/index.js",
+	"types": "types/index.d.ts",
+	"license": "MIT",
+	"author": {
+		"name": "Robo Labs",
+		"email": "info@robolabs.biz",
+		"url": "https://robolabs.biz"
+	},
+	"files": [
+		"dist",
+		"types"
+	],
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"engines": {
+		"node": ">=12"
+	},
+	"scripts": {
+		"build": "rollup -c",
+		"prepublishOnly": "npm run build",
+		"types": "tsc --noEmit",
+		"test": "uvu -r tsm test"
+	},
+	"keywords": [
+		"crypto",
+		"web3",
+		"alerts",
+		"ethereum",
+		"module",
+		"keywords"
+	],
+	"devDependencies": {
+		"@rollup/plugin-node-resolve": "13.1.3",
+		"rollup": "2.66.1",
+		"rollup-plugin-terser": "7.0.2",
+		"rollup-plugin-typescript2": "0.27.1",
+		"tsm": "2.2.1",
+		"typescript": "4.5.5",
+		"uvu": "0.5.3"
+	}
+}
