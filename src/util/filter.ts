@@ -22,6 +22,9 @@ export type ConditionGroup = {
 export type FilterConfig = ConditionGroup[]
 
 export class Filter {
+	public static version() {
+		return 'v1'
+	}
 
 	public static execute(record: any, groupsIn: FilterConfig, version = 'v1') {
 		// Deep copy to so we can edit the object during recursion
@@ -131,6 +134,10 @@ export class FilterBuilder {
 	private groups: ConditionGroup[] = []
 	constructor() {
 		this.newGroup('WHERE')
+	}
+
+	public static version() {
+		return Filter.version()
 	}
 
 	public static new(): FilterBuilder {

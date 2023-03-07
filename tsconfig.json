@@ -15,10 +15,12 @@
 		"declaration": true,
 		"declarationDir": "types",
 		"forceConsistentCasingInFileNames": true,
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
 		"strictNullChecks": true,
 		"noImplicitAny": true,
-		"strict": true
+		"strict": true,
+		"outDir": "./dist",
+		"allowSyntheticDefaultImports": true
 	},
 	"include": [
 		"@types/**/*",

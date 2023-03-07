@@ -1,7 +1,12 @@
 import { ethers } from "ethers"
-import { DeNotifyClient } from "./client"
-import { FunctionCallerConfig } from "./types/trigger"
+import { DeNotifyClient } from "./denotifyclient.js"
 
+export type FunctionCallerConfig = {
+	address: string
+	bytecode: string // encoded function data
+	abiHash: string
+	function: string
+}[]
 
 export class FunctionBuilder {
 	private data: FunctionCallerConfig = []

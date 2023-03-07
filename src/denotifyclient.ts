@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 import axios from "axios"
-import { DeNotifyOptions } from "./types/types"
+import { Notification } from "./notifications/notification.js"
+import { AlertConfig, DeNotifyOptions } from "./types/types.js"
+import { Trigger, TriggerUpdate } from "./triggers/trigger.js"
 
 const toFunctionsUrl = (id: string) => {
     return `https://${id}.functions.supabase.co/`
@@ -50,8 +52,12 @@ export class DeNotifyClient {
 		}
 	}
 
-	public async alertHistory(id?: number) {
-		const alerts = await this.request('get', `alert-history${id ? '/' + id : ''}`)
+	public async alertHistory(id: number | null, pagination: { page?: number, size?: number } = {}) {
+		const alerts = await this.request(
+			'get', 
+			`alert-history${id ? '/' + id : ''}`,
+			{ params: pagination }
+		)
 		return alerts
 	}
 
@@ -65,9 +71,12 @@ export class DeNotifyClient {
 		return alerts
 	}
 
-	public async createAlert() {
-		// const alerts = await this.request('get', 'alerts')
-		// return alerts
+
+	public async createAlert(config: AlertConfig) {
+		const trigger = Trigger.SimpleToRaw(config.name, config.triggerId, config.network, config.trigger)
+		const notification = Notification.SimpleToRaw(config.notificationId, config.notification)
+		const alert = await this.request('post', `alerts`, { body: { trigger, notification } })
+		return alert
 	}
 
 	public async deleteAlert(id: number) {
@@ -75,25 +84,55 @@ export class DeNotifyClient {
 		return alerts
 	}
 
-	private async request(method: 'get' | 'post' | 'update' | 'delete', path: string, body?: any) {
-		const url = `${this.url}${path}`
+	private async request(method: 'get' | 'post' | 'patch' | 'delete', path: string, options: { body?: any, params?: any } = {}) {
+		const url = new URL(`${this.url}${path}`)
+
+		// append params
+		if (options.params) {
+			for (const param of Object.keys(options.params)) {
+				url.searchParams.append(param, options.params[param])
+			}
+		}
+
 		const payload: any = {
 			method,
-			url: url,
+			url: url.toString(),
 			headers: this.headers
 		}
-		if (body)
-			payload.data = body
-		console.log(payload)
+		if (options.body)
+			payload.data = options.body
 		const res = await axios(payload);
 		return res.data
 	} 
 
+	public async getAbi(network: string, address: string): Promise<{ abi: any[], proxy?: string }>  {
+		const ret = await this.request('get', `abi/${network}/${address}`)
+		return ret
+
+	}
+	
+
 	public async getAbiHash(abi: any) {
-		const ret = await this.request('post', 'abi', abi)
+		const ret = await this.request('post', 'abi', { body: abi })
 		return ret.hash
 	}
 
+	public async setAlertName(triggerId: number, name: string) {
+		
+	}
+
+	public async enableAlert(triggerId: number) {
+		
+	}
+
+	public async disableAlert(triggerId: number) {
+		
+	}
+
+	public async updateTrigger(triggerId: number, update: TriggerUpdate) {
+		const ret = await this.request('patch', `alerts/trigger-handler/${triggerId}`, { body: update })
+		return ret		
+	}
 
 
     // public async updateAlert(alertId: number, type: AlertUpdateType, update: NotifyUpdate | TriggerUpdate | HandlerUpdate): Promise<AlertRepsonse>  {

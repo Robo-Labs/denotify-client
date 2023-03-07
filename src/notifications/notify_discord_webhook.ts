@@ -1,0 +1,46 @@
+import { NotificationRawConfig } from "./notification.js"
+
+// Simple Config
+export type DiscordWebhook = {
+    url: string
+    username?: string
+    avatar_url?: string
+    message: string
+}
+
+// Raw Config
+export type NotifyDiscordWebhookRawId = 'notify_discord_webhook'
+export const NOTIFY_DISCORD_WEBHOOK_RAW_ID = 'notify_discord_webhook'
+
+export type NotifyDiscordWebhookRawConfig = {
+    url: string
+    username?: string
+    avatar_url?: string
+    message: string
+}
+
+export type NotifyDiscordWebhookRawResponse = {
+    id: number
+    created_at: string
+    url: string
+    username: string
+    avatar_url: string
+    message: string
+}
+
+export type NotifyDiscordWebhookRawUpdate = {
+    url?: string
+    username?: string
+    avatar_url?: string
+    message?: string
+}
+
+export class NotifyDiscordWebhook {
+	public static SimpleToRaw(config: DiscordWebhook): NotificationRawConfig {
+		return  {
+			name: '', // deprecated
+			notify_type: NOTIFY_DISCORD_WEBHOOK_RAW_ID,
+			notify: config
+		}
+	}
+}
