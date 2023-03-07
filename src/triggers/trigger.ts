@@ -1,5 +1,5 @@
-import { HandlerFunctionCallRawConfig, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call.js"
-import { HandlerOnchainEventRawConfig, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event.js"
+import { HandlerFunctionCall, HandlerFunctionCallRawConfig, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call.js"
+import { HandlerOnchainEvent, HandlerOnchainEventRawConfig, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event.js"
 import { HandlerFunctionCallV2, HandlerFunctionCallV2RawConfig, HandlerFunctionCallV2Update, PollFunctionV2 } from "./handler_function_call_v2.js"
 
 export type Network = 
@@ -11,7 +11,7 @@ export type TriggerConfig = PollFunctionV2 | PollFunctionV1 | OnchainEventV1
 export type TriggerTypeId = 
 	'PollFunctionV2' | 
 	'OnchainEventV2' | 
-	'FunctionEventV2'
+	'PollFunctionV1'
 
 export type TriggerUpdate = 
 	HandlerFunctionCallV2Update |
@@ -21,7 +21,7 @@ export type TriggerUpdate =
 // Raw Types
 export type TriggerTypeRawId = 
 	'handler_function_call' | 
-	'onchain_event_call_v2' |
+	'handler_onchain_event' |
 	'handler_function_call_v2' 
 
 export type TriggerOn = 'event' | 'latch'
@@ -42,6 +42,8 @@ export class Trigger {
 	public static SimpleToRaw(name: string, id: TriggerTypeId, network: Network, config: TriggerConfig): TriggerRawConfig {
 		switch(id) {
 			case 'PollFunctionV2': return HandlerFunctionCallV2.SimpleToRaw(name, network, config as PollFunctionV2)
+			case 'PollFunctionV1': return HandlerFunctionCall.SimpleToRaw(name, network, config as PollFunctionV1)
+			case 'OnchainEventV2': return HandlerOnchainEvent.SimpleToRaw(name, network, config as OnchainEventV1)
 			default:
 				throw new Error('Invalid Trigger ID')
 		}

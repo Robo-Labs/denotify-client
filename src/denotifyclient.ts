@@ -118,56 +118,25 @@ export class DeNotifyClient {
 	}
 
 	public async setAlertName(triggerId: number, name: string) {
-		
+		throw new Error('Not yet supported - Sorry!')
 	}
 
 	public async enableAlert(triggerId: number) {
-		
+		throw new Error('Not yet supported - Sorry!')
 	}
 
 	public async disableAlert(triggerId: number) {
-		
+		throw new Error('Not yet supported - Sorry!')		
+	}
+
+	public async updateNotification(triggerId: number) {
+		throw new Error('Not yet supported - Sorry!')		
 	}
 
 	public async updateTrigger(triggerId: number, update: TriggerUpdate) {
+		// TODO - Input validation
 		const ret = await this.request('patch', `alerts/trigger-handler/${triggerId}`, { body: update })
 		return ret		
 	}
-
-
-    // public async updateAlert(alertId: number, type: AlertUpdateType, update: NotifyUpdate | TriggerUpdate | HandlerUpdate): Promise<AlertRepsonse>  {
-    //     switch (type) {
-    //         case 'notify': return await this.updateNotify(alertId, update as NotifyUpdate)
-    //         case 'trigger': return await this.updateTrigger(alertId, update as TriggerUpdate)
-    //         case 'trigger-handler': return await this.updateTriggerHandler(alertId, update as HandlerUpdate)
-    //     }
-    // }
-
-    // public async updateNotify(alertId: number, update: NotifyUpdate): Promise<AlertRepsonse>  {
-    //     const { data } = (await this.request('update-alert', 'post', { 
-    //         id: alertId,
-    //         type: 'notify', 
-    //         options: update,
-    //     }))
-    //     return data
-    // }
-
-    // public async updateTrigger(alertId: number, update: TriggerUpdate): Promise<AlertRepsonse>  {
-    //     const { data } = (await this.request('update-alert', 'post', { 
-    //         id: alertId,
-    //         type: 'trigger', 
-    //         options: update,
-    //     }))
-    //     return data
-    // }
-
-    // public async updateTriggerHandler(alertId: number, update: HandlerUpdate): Promise<AlertRepsonse>  {
-    //     const { data } = (await this.request('update-alert', 'post', { 
-    //         id: alertId,
-    //         type: 'trigger-handler', 
-    //         options: update,
-    //     }))
-    //     return data
-    // }
 
 }
