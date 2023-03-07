@@ -1,5 +1,5 @@
-import { NotificationConfig, NotificationTypeId } from "./notification"
-import { TriggerConfig, TriggerTypeId } from "../triggers/trigger"
+import { NotificationConfig, NotificationTypeId } from "../notifications/notification"
+import { Network, TriggerConfig, TriggerTypeId } from "../triggers/trigger"
 
 export type Condition = '>' | '>=' | '<' | '<=' | '=' | 'true'
 export type TriggerOn = 'event' | 'latch'
@@ -22,6 +22,7 @@ export type DeNotifyOptions = {
 
 export type AlertConfig = { 
 	name: string
+	network: Network
 	triggerId: TriggerTypeId
 	trigger: TriggerConfig
 	notificationId: NotificationTypeId

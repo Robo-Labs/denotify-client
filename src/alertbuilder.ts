@@ -1,9 +1,10 @@
 import { NotificationConfig, NotificationTypeId } from "./notifications/notification"
-import { TriggerConfig, TriggerTypeId } from "./triggers/trigger"
+import { Network, TriggerConfig, TriggerTypeId } from "./triggers/trigger"
 import { AlertConfig } from "./types/types"
 
 export class AlertBuilder {
 
+	private network?: Network
 	private triggerId?: TriggerTypeId
 	private trigger?: TriggerConfig
 	private notificationId?: NotificationTypeId
@@ -13,6 +14,11 @@ export class AlertBuilder {
 
 	public static create(name: string) {
 		return new AlertBuilder(name)
+	}
+
+	public onNetwork(network: Network): AlertBuilder {
+		this.network = network
+		return this
 	}
 
 	public withTrigger<T = TriggerConfig>(id: TriggerTypeId, options: T): AlertBuilder {
@@ -34,8 +40,12 @@ export class AlertBuilder {
 		if (this.notification === undefined || this.notificationId === undefined)
 			throw new Error('Notification not configured')
 		
+		if (this.network === undefined) 
+			throw new Error('Network not configured')
+
 		return {
 			name: this.name,
+			network: this.network,
 			triggerId: this.triggerId,
 			trigger: this.trigger,
 			notificationId: this.notificationId,

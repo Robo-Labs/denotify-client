@@ -1,5 +1,10 @@
 import { Condition } from "../util/filter"
 
+export type OnchainEventV1 = {
+	// TODO
+}
+
+
 export type HandlerOnchainEventRawConfig = {
     address: string
     event: string
@@ -9,6 +14,8 @@ export type HandlerOnchainEventRawConfig = {
     paramsDecimals?: number
     constant?: number
 }
+
+export type HandlerOnchainEventUpdate = Partial<HandlerOnchainEventRawConfig>
 
 export type HandlerOnchainEventRawResponse = {
     id: number

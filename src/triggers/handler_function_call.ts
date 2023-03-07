@@ -5,6 +5,7 @@ export type PollFunctionV1 = {
 	// TODO
 }
 
+
 export type HandlerFunctionCallRawConfig = {
     nBlocks: number
     address: string
@@ -16,6 +17,8 @@ export type HandlerFunctionCallRawConfig = {
     responseArgDecimals?: number
     constant?: number
 }
+
+export type HandlerFunctionCallUpdate = Partial<HandlerFunctionCallRawConfig>
 
 export type HandlerFunctionCallRawResponse = {
     id: number,

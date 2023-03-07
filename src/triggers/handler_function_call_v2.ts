@@ -1,7 +1,7 @@
 import { FunctionCallerConfig } from "../functionbuilder"
 import { Condition } from "../types/types"
 import { FilterConfig } from "../util/filter"
-import { TriggerRawConfig } from "./trigger"
+import { Network, TriggerRawConfig } from "./trigger"
 
 type TimeBase = 'blocks' | 'time'
 const HANDLER_FUNCTION_CALL_V2_RAW_ID = 'handler_function_call_v2'
@@ -56,6 +56,9 @@ export type HandlerFunctionCallV2RawConfig = {
 	filter?: FilterConfig
 }
 
+
+export type HandlerFunctionCallV2Update = Partial<HandlerFunctionCallV2RawConfig>
+
 export type HandlerFunctionCallV2RawResponse = {
     id: number,
     created_at: string,
@@ -84,9 +87,10 @@ export type HandlerFunctionCallV2RawUpdate = {
 }
 
 export class HandlerFunctionCallV2 {
-	public static SimpleToRaw(name: string, config: PollFunctionV2): TriggerRawConfig {		
+	public static SimpleToRaw(name: string, network: Network, config: PollFunctionV2): TriggerRawConfig {		
 		return {
 			alertType: 'event', // doesn't matter, deprecated
+			network,
 			nickname: name,
 			type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
 			handler: config
