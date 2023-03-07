@@ -1,5 +1,5 @@
 import { ethers } from "ethers"
-import { DeNotifyClient } from "./denotifyclient"
+import { DeNotifyClient } from "./denotifyclient.js"
 
 export type FunctionCallerConfig = {
 	address: string

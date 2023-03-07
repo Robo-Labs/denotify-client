@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 import axios from "axios"
-import { Notification } from "./notifications/notification"
-import { AlertConfig, DeNotifyOptions } from "./types/types"
-import { Trigger, TriggerUpdate } from "./triggers/trigger"
+import { Notification } from "./notifications/notification.js"
+import { AlertConfig, DeNotifyOptions } from "./types/types.js"
+import { Trigger, TriggerUpdate } from "./triggers/trigger.js"
 
 const toFunctionsUrl = (id: string) => {
     return `https://${id}.functions.supabase.co/`

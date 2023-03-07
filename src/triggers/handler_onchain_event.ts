@@ -1,4 +1,4 @@
-import { Condition } from "../util/filter"
+import { Condition } from "../util/filter.js"
 
 export type OnchainEventV1 = {
 	// TODO

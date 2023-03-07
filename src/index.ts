@@ -1,4 +1,4 @@
-import { DeNotifyClient } from "./denotifyclient";
+import { DeNotifyClient } from "./denotifyclient.js";
 
 
 export { 

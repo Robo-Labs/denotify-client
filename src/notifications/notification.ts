@@ -1,4 +1,11 @@
-import { DiscordWebhook, NotifyDiscordWebhook, NotifyDiscordWebhookRawConfig, NotifyDiscordWebhookRawId, NotifyDiscordWebhookRawResponse, NotifyDiscordWebhookRawUpdate } from "./notify_discord_webhook"
+import { 
+	DiscordWebhook, 
+	NotifyDiscordWebhook, 
+	NotifyDiscordWebhookRawConfig, 
+	NotifyDiscordWebhookRawId, 
+	NotifyDiscordWebhookRawResponse, 
+	NotifyDiscordWebhookRawUpdate
+} from "./notify_discord_webhook.js"
 
 // Types user is expossed to
 export type NotificationTypeId = 'Discord'

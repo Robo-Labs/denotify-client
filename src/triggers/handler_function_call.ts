@@ -1,4 +1,4 @@
-import { Condition } from "../types/types"
+import { Condition } from "../types/types.js"
 
 
 export type PollFunctionV1 = {

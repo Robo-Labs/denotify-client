@@ -25,6 +25,9 @@ export default {
 		]
 	}],
 	external: [
+		"form-data",
+		"follow-redirects",
+		"proxy-from-env",
 		...require('module').builtinModules,
 		...Object.keys(pkg.dependencies || {}),
 		...Object.keys(pkg.peerDependencies || {}),

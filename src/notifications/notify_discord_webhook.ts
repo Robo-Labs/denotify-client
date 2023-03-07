@@ -1,4 +1,4 @@
-import { NotificationRawConfig } from "./notification"
+import { NotificationRawConfig } from "./notification.js"
 
 // Simple Config
 export type DiscordWebhook = {

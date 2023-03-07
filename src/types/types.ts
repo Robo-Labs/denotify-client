@@ -1,5 +1,5 @@
-import { NotificationConfig, NotificationTypeId } from "../notifications/notification"
-import { Network, TriggerConfig, TriggerTypeId } from "../triggers/trigger"
+import { NotificationConfig, NotificationTypeId } from "../notifications/notification.js"
+import { Network, TriggerConfig, TriggerTypeId } from "../triggers/trigger.js"
 
 export type Condition = '>' | '>=' | '<' | '<=' | '=' | 'true'
 export type TriggerOn = 'event' | 'latch'

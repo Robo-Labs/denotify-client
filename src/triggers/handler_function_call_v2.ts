@@ -1,7 +1,7 @@
-import { FunctionCallerConfig } from "../functionbuilder"
-import { Condition } from "../types/types"
-import { FilterConfig } from "../util/filter"
-import { Network, TriggerRawConfig } from "./trigger"
+import { FunctionCallerConfig } from "../functionbuilder.js"
+import { Condition } from "../types/types.js"
+import { FilterConfig } from "../util/filter.js"
+import { Network, TriggerRawConfig } from "./trigger.js"
 
 type TimeBase = 'blocks' | 'time'
 const HANDLER_FUNCTION_CALL_V2_RAW_ID = 'handler_function_call_v2'

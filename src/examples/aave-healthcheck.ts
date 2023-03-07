@@ -1,10 +1,10 @@
 import { ethers } from "ethers"
-import { AlertBuilder } from "../alertbuilder"
-import { DeNotifyClient } from "../denotifyclient"
-import { FunctionBuilder } from "../functionbuilder"
-import { DiscordWebhook } from "../notifications/notify_discord_webhook"
-import { PollFunctionV2 } from "../triggers/handler_function_call_v2"
-import { FilterBuilder } from "../util/filter"
+import { AlertBuilder } from "../alertbuilder.js"
+import { DeNotifyClient } from "../denotifyclient.js"
+import { FunctionBuilder } from "../functionbuilder.js"
+import { DiscordWebhook } from "../notifications/notify_discord_webhook.js"
+import { PollFunctionV2 } from "../triggers/handler_function_call_v2.js"
+import { FilterBuilder } from "../util/filter.js"
 
 // Simple App to demonstrate usage. Created a balance monitoring alert, updates it and deletes it
 async function main() {

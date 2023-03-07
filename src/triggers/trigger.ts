@@ -1,6 +1,6 @@
-import { HandlerFunctionCallRawConfig, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call"
-import { HandlerOnchainEventRawConfig, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event"
-import { HandlerFunctionCallV2, HandlerFunctionCallV2RawConfig, HandlerFunctionCallV2Update, PollFunctionV2 } from "./handler_function_call_v2"
+import { HandlerFunctionCallRawConfig, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call.js"
+import { HandlerOnchainEventRawConfig, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event.js"
+import { HandlerFunctionCallV2, HandlerFunctionCallV2RawConfig, HandlerFunctionCallV2Update, PollFunctionV2 } from "./handler_function_call_v2.js"
 
 export type Network = 
 	'avalanche' | 

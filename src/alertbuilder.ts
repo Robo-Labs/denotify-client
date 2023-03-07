@@ -1,6 +1,6 @@
-import { NotificationConfig, NotificationTypeId } from "./notifications/notification"
-import { Network, TriggerConfig, TriggerTypeId } from "./triggers/trigger"
-import { AlertConfig } from "./types/types"
+import { NotificationConfig, NotificationTypeId } from "./notifications/notification.js"
+import { Network, TriggerConfig, TriggerTypeId } from "./triggers/trigger.js"
+import { AlertConfig } from "./types/types.js"
 
 export class AlertBuilder {
 
