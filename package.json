@@ -53,6 +53,7 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.10.0",
+		"axois": "^0.0.1-security",
 		"ethers": "^6.0.8"
 	}
 }

@@ -1,6 +1,9 @@
 import { createClient } from "@supabase/supabase-js"
 import axios from "axios"
-import { DeNotifyOptions } from "./types/types"
+import { Notification, NotificationConfig } from "./notifications/notification"
+import { TriggerConfig } from "./notifications/triggers/trigger"
+import { AlertConfig, DeNotifyOptions } from "./types/types"
+import { ConvertTriggerSimpleToRaw, Trigger, TriggerRawConfig } from "./triggers/trigger"
 
 const toFunctionsUrl = (id: string) => {
     return `https://${id}.functions.supabase.co/`
@@ -50,8 +53,12 @@ export class DeNotifyClient {
 		}
 	}
 
-	public async alertHistory(id?: number) {
-		const alerts = await this.request('get', `alert-history${id ? '/' + id : ''}`)
+	public async alertHistory(id: number | null, pagination: { page?: number, size?: number } = {}) {
+		const alerts = await this.request(
+			'get', 
+			`alert-history${id ? '/' + id : ''}`,
+			{ params: pagination }
+		)
 		return alerts
 	}
 
@@ -65,9 +72,12 @@ export class DeNotifyClient {
 		return alerts
 	}
 
-	public async createAlert() {
-		// const alerts = await this.request('get', 'alerts')
-		// return alerts
+
+	public async createAlert(config: AlertConfig) {
+		const trigger = Trigger.SimpleToRaw(config.name, config.triggerId, config.trigger)
+		const notification = Notification.SimpleToRaw(config.notificationId, config.notification)
+		const alert = await this.request('post', `alerts`, { body: { trigger, notification } })
+		return alert
 	}
 
 	public async deleteAlert(id: number) {
@@ -75,22 +85,29 @@ export class DeNotifyClient {
 		return alerts
 	}
 
-	private async request(method: 'get' | 'post' | 'update' | 'delete', path: string, body?: any) {
-		const url = `${this.url}${path}`
+	private async request(method: 'get' | 'post' | 'update' | 'delete', path: string, options: { body?: any, params?: any } = {}) {
+		const url = new URL(`${this.url}${path}`)
+
+		// append params
+		if (options.params) {
+			for (const param of Object.keys(options.params)) {
+				url.searchParams.append(param, options.params[param])
+			}
+		}
+
 		const payload: any = {
 			method,
-			url: url,
+			url: url.toString(),
 			headers: this.headers
 		}
-		if (body)
-			payload.data = body
-		console.log(payload)
+		if (options.body)
+			payload.data = options.body
 		const res = await axios(payload);
 		return res.data
 	} 
 
 	public async getAbiHash(abi: any) {
-		const ret = await this.request('post', 'abi', abi)
+		const ret = await this.request('post', 'abi', { body: abi })
 		return ret.hash
 	}
 
