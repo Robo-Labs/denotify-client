@@ -5,16 +5,19 @@ import pkg from './package.json';
 
 export default {
 	input: 'src/index.ts',
-	output: [{
-		format: 'esm',
-		file: pkg.module,
-		sourcemap: false,
-	}, {
-		format: 'cjs',
-		file: pkg.main,
-		sourcemap: false,
-		esModule: false,
-	}, {
+	output: [
+		{
+			format: 'esm',
+			file: pkg.module,
+			sourcemap: false,
+		}, 
+	// {
+	// 	format: 'cjs',
+	// 	file: pkg.main,
+	// 	sourcemap: false,
+	// 	esModule: false,
+	// },
+	{
 		name: pkg['umd:name'] || pkg.name,
 		format: 'umd',
 		file: pkg.unpkg,
@@ -23,7 +26,8 @@ export default {
 		plugins: [
 			terser()
 		]
-	}],
+	}
+	],
 	external: [
 		"form-data",
 		"follow-redirects",
