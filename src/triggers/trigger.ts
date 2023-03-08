@@ -1,6 +1,6 @@
-import { HandlerFunctionCall, HandlerFunctionCallRawConfig, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call.js"
-import { HandlerOnchainEvent, HandlerOnchainEventRawConfig, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event.js"
-import { HandlerFunctionCallV2, HandlerFunctionCallV2RawConfig, HandlerFunctionCallV2Update, PollFunctionV2 } from "./handler_function_call_v2.js"
+import { HandlerFunctionCall, HandlerFunctionCallRawConfig, HandlerFunctionCallRawResponse, HandlerFunctionCallUpdate, PollFunctionV1 } from "./handler_function_call.js"
+import { HandlerOnchainEvent, HandlerOnchainEventRawConfig, HandlerOnchainEventRawResponse, HandlerOnchainEventUpdate, OnchainEventV1 } from "./handler_onchain_event.js"
+import { HandlerFunctionCallV2, HandlerFunctionCallV2RawConfig, HandlerFunctionCallV2RawResponse, HandlerFunctionCallV2Update, PollFunctionV2 } from "./handler_function_call_v2.js"
 
 export type Network = 
 	'avalanche' | 
@@ -36,6 +36,27 @@ export type TriggerRawConfig = {
     alertType: TriggerOn
 	network: Network
     handler: HandlerRawConfig
+}
+
+export type HandlerRawResponse = 
+	HandlerFunctionCallV2RawResponse |
+	HandlerFunctionCallRawResponse | 
+	HandlerOnchainEventRawResponse
+
+
+export type TriggerRawResponse = {
+	id: number
+	type: TriggerTypeRawId
+	triggered: boolean
+	lastBlock: number
+	alertType: 'event' | 'latch' // deprecated
+	enabled: boolean
+	nickname: string
+	error: boolean
+	error_message: string | null
+	error_timestamp: number | null
+	network: Network
+	handler: HandlerRawResponse
 }
 
 export class Trigger {

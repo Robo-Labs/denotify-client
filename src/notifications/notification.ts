@@ -23,6 +23,15 @@ export type NotificationRawConfig = {
     notify_type: NotifyRawId
     notify: NotifyRawConfig
 }
+	
+
+export type NotificationRawResponse = {
+	notify_type: NotifyRawId
+	notify: NotifyRawResponse
+	error: boolean
+	error_message: string | null
+	error_timestamp: number | null
+}
 
 export class Notification {
 	public static SimpleToRaw(id: NotificationTypeId, config: NotificationConfig): NotificationRawConfig {

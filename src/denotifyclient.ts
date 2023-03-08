@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 import axios from "axios"
-import { Notification } from "./notifications/notification.js"
+import { Notification, NotificationRawResponse, NotifyRawId } from "./notifications/notification.js"
 import { AlertConfig, DeNotifyOptions } from "./types/types.js"
-import { Trigger, TriggerUpdate } from "./triggers/trigger.js"
+import { Trigger, TriggerConfig, TriggerRawResponse, TriggerTypeRawId, TriggerUpdate } from "./triggers/trigger.js"
 
 const toFunctionsUrl = (id: string) => {
     return `https://${id}.functions.supabase.co/`
@@ -16,6 +16,21 @@ const PROD_PROJECT_ID = 'fdgtrxmmrtlokhgkvcjz'
 // const API_URL = ''
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZ3RyeG1tcnRsb2toZ2t2Y2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzMwODcwNzYsImV4cCI6MTk4ODY2MzA3Nn0.sAMxjlcJSSozBGr-LNcsudyxzUEM9e-UspMHHQLqLr4'
 
+type Pagination = { page?: number, size?: number }
+type HistoryParams = { id?: number, page?: number, size?: number }
+type AlertHistory = {
+	type: 'trigger' | 'notification',
+	set: boolean,
+	alert_id: number,
+	block: number,
+	metadata: any,
+	subtype: TriggerTypeRawId | NotifyRawId
+}
+type AlertRawResponse = {
+	alertId: number,
+	trigger: TriggerRawResponse
+	notification: NotificationRawResponse
+}
 
 export class DeNotifyClient {
     private headers: any = {}
@@ -52,21 +67,29 @@ export class DeNotifyClient {
 		}
 	}
 
-	public async alertHistory(id: number | null, pagination: { page?: number, size?: number } = {}) {
-		const alerts = await this.request(
-			'get', 
-			`alert-history${id ? '/' + id : ''}`,
-			{ params: pagination }
-		)
-		return alerts
+	public async alertHistory(id?: number | null, pagination?: Pagination ): Promise<{ params: HistoryParams, history: AlertHistory[] }> {
+		const url = `alert-history`
+		const params: any = pagination ? pagination : {}
+		if (id) params.id = id
+		
+		if (Object.keys(params).length > 0) {
+			return await this.request(
+				'get', 
+				url,
+				{ params: pagination }
+			)
+		} else {
+			return await this.request('get', url)
+		}
 	}
 
-	public async getAlert(id: number) {
+	// TODO - Beutify the reponse
+	public async getAlert(id: number): Promise<AlertRawResponse> {
 		const alerts = await this.request('get', `alerts/${id}`)
 		return alerts[0]
 	}
 
-	public async getAlerts() {
+	public async getAlerts(): Promise<AlertRawResponse[]> {
 		const alerts = await this.request('get', 'alerts')
 		return alerts
 	}
@@ -93,6 +116,7 @@ export class DeNotifyClient {
 				url.searchParams.append(param, options.params[param])
 			}
 		}
+		console.log(url.toString())
 
 		const payload: any = {
 			method,
