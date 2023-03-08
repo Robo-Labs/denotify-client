@@ -1,4 +1,5 @@
 import { NotificationRawConfig } from "./notification.js"
+import * as yup from 'yup'
 
 // Simple Config
 export type DiscordWebhook = {
@@ -43,4 +44,16 @@ export class NotifyDiscordWebhook {
 			notify: config
 		}
 	}
+
+	public static validateCreate(options: any) {
+		const urlRegex = /^(https?|ftp):\/\/(-\.)?([^\s/?\.#]+\.?)+([^\s\.?#]+)?(\?\S*)?$/
+		const schema = yup.object({
+			url: yup.string().matches(urlRegex, 'url is not a valid url').required(),
+			username: yup.string(),
+			avatar_url: yup.string().matches(urlRegex, 'url is not a valid url'),
+			message: yup.string().required()
+		})
+		return schema.validate(options)
+	}
 }
+

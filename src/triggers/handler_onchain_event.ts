@@ -1,5 +1,6 @@
-import { Condition } from "../util/filter.js"
 import { Network, TriggerRawConfig } from "./trigger.js"
+import { Condition } from "../types/types.js"
+import * as yup from 'yup'
 
 const HANDLER_ONCHAIN_EVENT_V1_RAW_ID = 'handler_onchain_event'
 
@@ -55,5 +56,23 @@ export class HandlerOnchainEvent {
 			type: HANDLER_ONCHAIN_EVENT_V1_RAW_ID,
 			handler: config
 		}
+	}
+
+	public static validateCreate(options: any) {
+		const requiredWhenConditional = ([condition]: string[], schema: any) =>  condition === 'true' ? schema.notRequired() : schema.required()
+
+		const onchainEventSchema = yup.object({
+			address: yup.string().required(),
+			event: yup.string().required(), // TODO check event is in abi
+			abi: yup.array().required(),
+			condition: yup.string().oneOf(['>', '>=', '<', '<=', '=', 'true']),
+			constant: yup.number().min(0).when('condition', requiredWhenConditional),
+			paramsIndex: yup.number().min(0).when('condition', requiredWhenConditional), // TODO check paramsIndex exists in ABI
+			paramsDecimals: yup.number().min(0).when('condition', requiredWhenConditional),
+		})
+		return onchainEventSchema.validate(options)
+	}
+
+	public static validateUpdate(options: any) {
 	}
 }

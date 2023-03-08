@@ -1,5 +1,6 @@
 import { ethers } from "ethers"
 import { DeNotifyClient } from "./denotifyclient.js"
+import * as yup from 'yup'
 
 export type FunctionCallerConfig = {
 	address: string
@@ -37,6 +38,15 @@ export class FunctionBuilder {
 
 	public get() {
 		return this.data
+	}
+
+	public static schema() {
+		return yup.array().of(yup.object({
+			address: yup.string().required(),
+			bytecode: yup.string().matches(/^(0x)?([0-9a-fA-F]{2})*$/).required(),
+			abiHash: yup.string().matches(/^[A-Fa-f0-9]{64}/).required(),
+			function: yup.string().required()
+		}))
 	}
 
 }

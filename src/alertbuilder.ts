@@ -1,4 +1,8 @@
 import { NotificationConfig, NotificationTypeId } from "./notifications/notification.js"
+import { NotifyDiscordWebhook } from "./notifications/notify_discord_webhook.js"
+import { HandlerFunctionCall } from "./triggers/handler_function_call.js"
+import { HandlerFunctionCallV2 } from "./triggers/handler_function_call_v2.js"
+import { HandlerOnchainEvent } from "./triggers/handler_onchain_event.js"
 import { Network, TriggerConfig, TriggerTypeId } from "./triggers/trigger.js"
 import { AlertConfig } from "./types/types.js"
 
@@ -21,7 +25,14 @@ export class AlertBuilder {
 		return this
 	}
 
-	public withTrigger<T = TriggerConfig>(id: TriggerTypeId, options: T): AlertBuilder {
+	/**
+	 * Call withTrigger with one of the TriggerConfig types:
+	 * PollFunctionV2 | PollFunctionV1 | OnchainEventV1
+	 * @param id Simple ID
+	 * @param options Desired trigger configuration
+	 * @returns self for piping
+	 */
+	public withTrigger<T>(id: TriggerTypeId, options: T): AlertBuilder {
 		this.triggerId = id
 		this.trigger = options as any
 		return this
@@ -33,7 +44,20 @@ export class AlertBuilder {
 		return this
 	}
 
-	public config(): AlertConfig {
+	public async validate() {
+
+		// Validate trigger
+		switch(this.triggerId) {	
+			case 'OnchainEventV1': return HandlerOnchainEvent.validateCreate(this.trigger)
+			case 'PollFunctionV1': return HandlerFunctionCall.validateCreate(this.trigger)
+			case 'PollFunctionV2': return HandlerFunctionCallV2.validateCreate(this.trigger)
+		}
+		switch(this.notificationId) {	
+			case 'Discord': return NotifyDiscordWebhook.validateCreate(this.notification)
+		}
+	}
+
+	public async config(): Promise<AlertConfig> {
 		if (this.trigger === undefined || this.triggerId === undefined)
 			throw new Error('Trigger not configured')
 
@@ -42,6 +66,9 @@ export class AlertBuilder {
 		
 		if (this.network === undefined) 
 			throw new Error('Network not configured')
+
+
+		await this.validate()
 
 		return {
 			name: this.name,

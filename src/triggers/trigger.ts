@@ -10,7 +10,7 @@ export type Network =
 export type TriggerConfig = PollFunctionV2 | PollFunctionV1 | OnchainEventV1
 export type TriggerTypeId = 
 	'PollFunctionV2' | 
-	'OnchainEventV2' | 
+	'OnchainEventV1' | 
 	'PollFunctionV1'
 
 export type TriggerUpdate = 
@@ -43,7 +43,7 @@ export class Trigger {
 		switch(id) {
 			case 'PollFunctionV2': return HandlerFunctionCallV2.SimpleToRaw(name, network, config as PollFunctionV2)
 			case 'PollFunctionV1': return HandlerFunctionCall.SimpleToRaw(name, network, config as PollFunctionV1)
-			case 'OnchainEventV2': return HandlerOnchainEvent.SimpleToRaw(name, network, config as OnchainEventV1)
+			case 'OnchainEventV1': return HandlerOnchainEvent.SimpleToRaw(name, network, config as OnchainEventV1)
 			default:
 				throw new Error('Invalid Trigger ID')
 		}

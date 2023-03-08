@@ -1,7 +1,8 @@
-import { FunctionCallerConfig } from "../functionbuilder.js"
+import { FunctionBuilder, FunctionCallerConfig } from "../functionbuilder.js"
 import { Condition } from "../types/types.js"
-import { FilterConfig } from "../util/filter.js"
+import { FilterBuilder, FilterConfig } from "../util/filter.js"
 import { Network, TriggerRawConfig } from "./trigger.js"
+import * as yup from 'yup'
 
 type TimeBase = 'blocks' | 'time'
 const HANDLER_FUNCTION_CALL_V2_RAW_ID = 'handler_function_call_v2'
@@ -95,5 +96,40 @@ export class HandlerFunctionCallV2 {
 			type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
 			handler: config
 		}
+	}
+
+	public static validateCreate(options: any) {
+		const timePeriodRegex = /^(\d+)([SMHD])$/i;
+
+		const onchainEventSchema = yup.object({
+			timeBase: yup.string().oneOf(['blocks', 'time']).required(),
+			
+			// Blocks config
+			nBlocks: yup.number()
+				.min(10)
+				.when('timeBase', ([timeBase], schema) => timeBase === 'blocks' ? schema.required() : schema ),
+			
+			// Or Time config
+			timePeriod: yup.string()
+				.matches(timePeriodRegex, 'timePeriod must be of the format n[s|m|h|d], eg 10s for 10 seconds')
+				.when('timeBase', ([timeBase], schema) => timeBase === 'time' ? schema.required() : schema ),
+			startTime: yup.number().default(0),
+
+			// Debouncing. Default is 0
+			debounceCount: yup.number(),
+
+			// Functions
+			functions: FunctionBuilder.schema(),
+
+			// Trigger
+			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
+			latch: yup.boolean().default(false),
+
+			// Filter
+			filterVersion: yup.string().when('triggerOn', ([triggerOn], schema) => triggerOn === 'filter' ? schema.required() : schema),
+			filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) => triggerOn === 'filter' ? schema.required() : schema),
+		})
+
+		return onchainEventSchema.validate(options)
 	}
 }

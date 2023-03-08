@@ -23,7 +23,7 @@ async function main() {
 	await builder.addFunction(address, 'getBalance', [myAddress], abi)
 
 	// Create the Balance Monitor alert
-	const alert = AlertBuilder.create('Test Alert')
+	const alert = await AlertBuilder.create('Test Alert')
 		.onNetwork('avalanche')
 		.withTrigger<PollFunctionV2>('PollFunctionV2', {
 			timeBase: 'time',

@@ -5,6 +5,7 @@ type StringOperation = 'contains' | '!contains' | 'is' | '!is' | 'isEmpty' | '!i
 type AddressOperation = 'is' | '!is' | 'isEmpty' | '!isEmpty'
 type FilterDataTypes = 'String' | 'Address' | 'Number'
 type FilterOpertationType = NumericOperation | StringOperation | AddressOperation
+import * as yup from 'yup'
 
 export type Condition = {
 	logic?: Logic
@@ -177,5 +178,35 @@ export class FilterBuilder {
 				throw new Error('Bad Filter. All Groups must have atleast one condition')
 		}
 		return this.groups
+	}
+
+	public static schema() {
+		const logic =  yup.string().oneOf(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'WHERE']).required()
+		const condition = yup.object({
+			logic,
+			key: yup.string().required(),
+			type: yup.string().oneOf(['String', 'Address', 'Number']).required(),
+			operation: yup.string().when('type',([type], schema) => {
+				switch (type) {
+					case 'String': return schema.oneOf(['contains', '!contains', 'is', '!is', 'isEmpty', '!isEmpty'])
+					case 'Address': return schema.oneOf(['is', '!is', 'isEmpty', '!isEmpty'])
+					case 'Number': return schema.oneOf(['String', 'Address', 'Number'])
+					default: throw new Error('Invalid Filter Data Type')
+				}
+			}),
+			constant: yup.mixed().when('type', ([type]) => {
+				switch (type) {
+					case 'String': return yup.string()
+					case 'Address': return yup.string()
+					case 'Number': return yup.number()
+					default: throw new Error('Invalid Filter Data Type')
+				}
+			}),
+		})
+
+		return yup.array().of(yup.object({
+			logic,
+			conditions: yup.array().of(condition)
+		}))
 	}
 }
