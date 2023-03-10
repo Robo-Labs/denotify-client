@@ -59,6 +59,9 @@
 		"@supabase/supabase-js": "^2.10.0",
 		"@types/axios": "^0.14.0",
 		"ethers": "^6.0.8",
+		"follow-redirects": "^1.15.2",
+		"form-data": "^4.0.0",
+		"proxy-from-env": "^1.1.0",
 		"yup": "^1.0.2"
 	}
 }
