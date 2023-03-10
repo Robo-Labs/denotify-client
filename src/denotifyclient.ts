@@ -3,6 +3,7 @@ import axios from "axios"
 import { Notification, NotificationRawResponse, NotifyRawId } from "./notifications/notification.js"
 import { AlertConfig, DeNotifyOptions } from "./types/types.js"
 import { Trigger, TriggerConfig, TriggerRawResponse, TriggerTypeRawId, TriggerUpdate } from "./triggers/trigger.js"
+import fetch from 'node-fetch';
 
 const toFunctionsUrl = (id: string) => {
     return `https://${id}.functions.supabase.co/`
@@ -116,17 +117,18 @@ export class DeNotifyClient {
 				url.searchParams.append(param, options.params[param])
 			}
 		}
-		console.log(url.toString())
 
 		const payload: any = {
 			method,
-			url: url.toString(),
 			headers: this.headers
 		}
 		if (options.body)
-			payload.data = options.body
-		const res = await axios(payload);
-		return res.data
+			payload.body = JSON.stringify(options.body)
+
+		const res = await fetch(url.toString(), payload);
+		if (!res.ok)
+			throw new Error(`unexpected response ${res.statusText}`)
+		return await res.json() as any
 	} 
 
 	public async getAbi(network: string, address: string): Promise<{ abi: any[], proxy?: string }>  {
