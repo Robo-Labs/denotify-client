@@ -1,12 +1,32 @@
-node_modules
-.DS_Store
-*-lock.*
-*.lock
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-/dist
-/types
+node_modules
+dist
+dist-ssr
+*.local
+coverage
 
-build/
+# Editor directories and files
+.vscode/*
+.history/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+
+types/
 
 .env
