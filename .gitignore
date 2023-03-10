@@ -24,3 +24,9 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+
+
+types/
+
+.env
