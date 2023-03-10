@@ -1,34 +1,22 @@
 {
-	"ts-node": {
-		"esm": true,
-		"transpileOnly": true,
-		"compilerOptions": {
-			"module": "ES6",
-			"sourceMap": true,
-			"esModuleInterop": true,
-		},
-		"include": [
-			"test/**/*"
-		]
-	},
-	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
-		"declaration": true,
-		"declarationDir": "types",
-		"forceConsistentCasingInFileNames": true,
-		"moduleResolution": "nodenext",
-		"strictNullChecks": true,
-		"noImplicitAny": true,
-		"strict": true,
-		"outDir": "./dist",
-		"allowSyntheticDefaultImports": true
-	},
-	"include": [
-		"@types/**/*",
-		"src/**/*"
-	],
-	"exclude": [
-		"node_modules"
-	]
+  "compilerOptions": {
+    "rootDir": "./src",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["vite/client", "node", "jest"]
+  },
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "node_modules", "test/**", ".history/**"]
 }
