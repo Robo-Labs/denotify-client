@@ -4,6 +4,7 @@
   "version": "1.1.12",
   "main": "./dist/denotify-client.cjs",
   "module": "./dist/denotify-client.mjs",
+  "types": "./dist/denotify-client.d.ts",
   "exports": {
     ".": {
       "require": "./dist/denotify-client.cjs",
