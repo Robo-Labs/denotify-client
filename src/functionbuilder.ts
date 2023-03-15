@@ -1,28 +1,28 @@
-import { ethers } from "ethers";
-import { DeNotifyClient } from "./denotifyclient.js";
-import * as yup from "yup";
+import { ethers } from 'ethers'
+import { DeNotifyClient } from './denotifyclient.js'
+import * as yup from 'yup'
 
 export type FunctionCallerConfig = {
-  address: string;
-  bytecode: string; // encoded function data
-  abiHash: string;
-  function: string;
-}[];
+  address: string
+  bytecode: string // encoded function data
+  abiHash: string
+  function: string
+}[]
 
 export class FunctionBuilder {
-  private data: FunctionCallerConfig = [];
+  private data: FunctionCallerConfig = []
   private constructor(private api?: DeNotifyClient) {}
 
   public static create(api?: DeNotifyClient) {
-    return new FunctionBuilder(api);
+    return new FunctionBuilder(api)
   }
 
   public getAbiHash(abi: any): Promise<string> {
     if (this.api === undefined) {
-      throw new Error("FunctionBuilder must be initialised with api");
+      throw new Error('FunctionBuilder must be initialised with api')
     }
 
-    return this.api.getAbiHash(abi);
+    return this.api.getAbiHash(abi)
   }
 
   public async addFunction<T = any>(
@@ -31,19 +31,19 @@ export class FunctionBuilder {
     args: T[],
     abi: any
   ) {
-    const contract = new ethers.Contract(address, abi);
-    contract.interface.encodeFunctionData(func, args);
+    const contract = new ethers.Contract(address, abi)
+    contract.interface.encodeFunctionData(func, args)
     this.data.push({
       address,
       bytecode: contract.interface.encodeFunctionData(func, args),
       abiHash: await this.getAbiHash(abi),
-      function: func,
-    });
-    return this;
+      function: func
+    })
+    return this
   }
 
   public get() {
-    return this.data;
+    return this.data
   }
 
   public static schema() {
@@ -58,8 +58,8 @@ export class FunctionBuilder {
           .string()
           .matches(/^[A-Fa-f0-9]{64}/)
           .required(),
-        function: yup.string().required(),
+        function: yup.string().required()
       })
-    );
+    )
   }
 }

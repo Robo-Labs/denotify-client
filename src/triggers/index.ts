@@ -6,33 +6,33 @@ import type {
   TriggerRawConfig,
   TriggerTypeId,
   TriggerTypeRawId,
-  TriggerUpdate,
-} from "./trigger.js";
-import { Trigger } from "./trigger.js";
+  TriggerUpdate
+} from './trigger.js'
+import { Trigger } from './trigger.js'
 import type {
   HandlerFunctionCallV2RawConfig,
   HandlerFunctionCallV2RawResponse,
   HandlerFunctionCallV2RawUpdate,
   HandlerFunctionCallV2Update,
-  PollFunctionV2,
-} from "./handler_function_call_v2.js";
-import { HandlerFunctionCallV2 } from "./handler_function_call_v2.js";
+  PollFunctionV2
+} from './handler_function_call_v2.js'
+import { HandlerFunctionCallV2 } from './handler_function_call_v2.js'
 import type {
   HandlerFunctionCallRawConfig,
   HandlerFunctionCallRawResponse,
   HandlerFunctionCallRawUpdate,
   HandlerFunctionCallUpdate,
-  PollFunctionV1,
-} from "./handler_function_call.js";
-import { HandlerFunctionCall } from "./handler_function_call.js";
+  PollFunctionV1
+} from './handler_function_call.js'
+import { HandlerFunctionCall } from './handler_function_call.js'
 import type {
   HandlerOnchainEventRawConfig,
   HandlerOnchainEventRawResponse,
   HandlerOnchainEventRawUpdate,
   HandlerOnchainEventUpdate,
-  OnchainEventV1,
-} from "./handler_onchain_event.js";
-import { HandlerOnchainEvent } from "./handler_onchain_event.js";
+  OnchainEventV1
+} from './handler_onchain_event.js'
+import { HandlerOnchainEvent } from './handler_onchain_event.js'
 
 export {
   HandlerFunctionCall,
@@ -61,5 +61,5 @@ export {
   TriggerRawConfig,
   TriggerTypeId,
   TriggerTypeRawId,
-  TriggerUpdate,
-};
+  TriggerUpdate
+}
