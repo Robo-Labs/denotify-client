@@ -46,18 +46,27 @@ export class AlertBuilder {
    * @param options Desired trigger configuration
    * @returns self for piping
    */
-  public withTrigger<T>(id: TriggerTypeId, options: T): AlertBuilder {
+  public withTrigger<TTriggerTypeId extends TriggerTypeId>(
+    id: TTriggerTypeId,
+    options: TTriggerTypeId extends 'PollFunctionV2'
+      ? PollFunctionV2
+      : TTriggerTypeId extends 'OnchainEventV1'
+      ? OnchainEventV1
+      : TTriggerTypeId extends 'PollFunctionV1'
+      ? PollFunctionV1
+      : never
+  ): AlertBuilder {
     this.triggerId = id
-    this.trigger = options as any
+    this.trigger = options
     return this
   }
 
-  public withNotification<T = NotificationConfig>(
-    id: NotificationTypeId,
-    options: T
+  public withNotification<TNotificationTypeId extends NotificationTypeId>(
+    id: TNotificationTypeId,
+    options: TNotificationTypeId extends 'Discord' ? DiscordWebhook : never
   ): AlertBuilder {
     this.notificationId = id
-    this.notification = options as any
+    this.notification = options
     return this
   }
 
