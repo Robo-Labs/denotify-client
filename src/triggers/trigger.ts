@@ -20,7 +20,15 @@ import {
   PollFunctionV2
 } from './handler_function_call_v2.js'
 
-export type Network = 'avalanche' | 'ethereum'
+export type Network =
+  | 'ethereum'
+  | 'avalanche'
+  | 'bsc'
+  | 'polygon'
+  | 'fantom'
+  | 'optimism'
+  | 'arbitrum'
+  | 'canto'
 
 // Simple Types
 export type TriggerConfig = PollFunctionV2 | PollFunctionV1 | OnchainEventV1
