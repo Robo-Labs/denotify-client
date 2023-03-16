@@ -6,10 +6,10 @@ import * as Trigger from './triggers/index.js'
 import * as Notification from './notifications/index.js'
 
 export {
-  AlertBuilder,
-  DeNotifyClient,
-  FilterBuilder,
-  FunctionBuilder,
-  Notification,
-  Trigger
+	AlertBuilder,
+	DeNotifyClient,
+	FilterBuilder,
+	FunctionBuilder,
+	Notification,
+	Trigger
 }

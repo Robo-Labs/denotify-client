@@ -14,141 +14,141 @@ const HANDLER_FUNCTION_CALL_V2_RAW_ID = 'handler_function_call_v2'
  *
  */
 export type PollFunctionV2 = {
-  // Poll period configuration
-  timeBase: TimeBase
-  nBlocks?: number
-  timePeriod?: string | null // Grafana style time format
-  startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
+	// Poll period configuration
+	timeBase: TimeBase
+	nBlocks?: number
+	timePeriod?: string | null // Grafana style time format
+	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
 
-  // Debouncing. Default is 0
-  debounceCount?: number
+	// Debouncing. Default is 0
+	debounceCount?: number
 
-  // Functions
-  functions: FunctionCallerConfig
+	// Functions
+	functions: FunctionCallerConfig
 
-  // Trigger
-  triggerOn: 'always' | 'filter'
-  latch?: boolean // If triggerOn = 'always' latch must be false.
+	// Trigger
+	triggerOn: 'always' | 'filter'
+	latch?: boolean // If triggerOn = 'always' latch must be false.
 
-  // Filter
-  filterVersion?: string
-  filter?: FilterConfig
+	// Filter
+	filterVersion?: string
+	filter?: FilterConfig
 }
 
 export type HandlerFunctionCallV2RawConfig = {
-  // Poll period configuration
-  timeBase: TimeBase
-  nBlocks?: number
-  timePeriod?: string | null // Grafana style time format
-  startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
+	// Poll period configuration
+	timeBase: TimeBase
+	nBlocks?: number
+	timePeriod?: string | null // Grafana style time format
+	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
 
-  // Debouncing. Default is 0
-  debounceCount?: number
+	// Debouncing. Default is 0
+	debounceCount?: number
 
-  // Functions
-  functions: FunctionCallerConfig
+	// Functions
+	functions: FunctionCallerConfig
 
-  // Trigger
-  triggerOn: 'always' | 'filter'
-  latch?: boolean // If triggerOn = 'always' latch must be false.
+	// Trigger
+	triggerOn: 'always' | 'filter'
+	latch?: boolean // If triggerOn = 'always' latch must be false.
 
-  // Filter
-  filterVersion?: string
-  filter?: FilterConfig
+	// Filter
+	filterVersion?: string
+	filter?: FilterConfig
 }
 
 export type HandlerFunctionCallV2Update =
-  Partial<HandlerFunctionCallV2RawConfig>
+	Partial<HandlerFunctionCallV2RawConfig>
 
 export type HandlerFunctionCallV2RawResponse = {
-  id: number
-  created_at: string
-  nBlocks: number
-  address: string
-  fixedArgs: string[]
-  responseArgIndex: number
-  responseArgDecimals: number
-  function: string
-  condition: Condition
-  constant: number
-  abi: string[]
-  version: number
+	id: number
+	created_at: string
+	nBlocks: number
+	address: string
+	fixedArgs: string[]
+	responseArgIndex: number
+	responseArgDecimals: number
+	function: string
+	condition: Condition
+	constant: number
+	abi: string[]
+	version: number
 }
 
 export type HandlerFunctionCallV2RawUpdate = {
-  address?: string
-  function?: string
-  abi?: any
-  constant?: number
-  nBlocks?: number
-  confition?: Condition
-  fixedArgs?: (string | number)[]
-  responseArgIndex?: number
-  responseArgDecimals?: number
+	address?: string
+	function?: string
+	abi?: any
+	constant?: number
+	nBlocks?: number
+	confition?: Condition
+	fixedArgs?: (string | number)[]
+	responseArgIndex?: number
+	responseArgDecimals?: number
 }
 
 export class HandlerFunctionCallV2 {
-  public static SimpleToRaw(
-    name: string,
-    network: Network,
-    config: PollFunctionV2
-  ): TriggerRawConfig {
-    return {
-      alertType: 'event', // doesn't matter, deprecated
-      network,
-      nickname: name,
-      type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
-      handler: config
-    }
-  }
+	public static SimpleToRaw(
+		name: string,
+		network: Network,
+		config: PollFunctionV2
+	): TriggerRawConfig {
+		return {
+			alertType: 'event', // doesn't matter, deprecated
+			network,
+			nickname: name,
+			type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
+			handler: config
+		}
+	}
 
-  public static validateCreate(options: any) {
-    const timePeriodRegex = /^(\d+)([SMHD])$/i
+	public static validateCreate(options: any) {
+		const timePeriodRegex = /^(\d+)([SMHD])$/i
 
-    const onchainEventSchema = yup.object({
-      timeBase: yup.string().oneOf(['blocks', 'time']).required(),
+		const onchainEventSchema = yup.object({
+			timeBase: yup.string().oneOf(['blocks', 'time']).required(),
 
-      // Blocks config
-      nBlocks: yup
-        .number()
-        .min(10)
-        .when('timeBase', ([timeBase], schema) =>
-          timeBase === 'blocks' ? schema.required() : schema
-        ),
+			// Blocks config
+			nBlocks: yup
+				.number()
+				.min(10)
+				.when('timeBase', ([timeBase], schema) =>
+					timeBase === 'blocks' ? schema.required() : schema
+				),
 
-      // Or Time config
-      timePeriod: yup
-        .string()
-        .matches(
-          timePeriodRegex,
-          'timePeriod must be of the format n[s|m|h|d], eg 10s for 10 seconds'
-        )
-        .when('timeBase', ([timeBase], schema) =>
-          timeBase === 'time' ? schema.required() : schema
-        ),
-      startTime: yup.number().default(0),
+			// Or Time config
+			timePeriod: yup
+				.string()
+				.matches(
+					timePeriodRegex,
+					'timePeriod must be of the format n[s|m|h|d], eg 10s for 10 seconds'
+				)
+				.when('timeBase', ([timeBase], schema) =>
+					timeBase === 'time' ? schema.required() : schema
+				),
+			startTime: yup.number().default(0),
 
-      // Debouncing. Default is 0
-      debounceCount: yup.number(),
+			// Debouncing. Default is 0
+			debounceCount: yup.number(),
 
-      // Functions
-      functions: FunctionBuilder.schema(),
+			// Functions
+			functions: FunctionBuilder.schema(),
 
-      // Trigger
-      triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
-      latch: yup.boolean().default(false),
+			// Trigger
+			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
+			latch: yup.boolean().default(false),
 
-      // Filter
-      filterVersion: yup
-        .string()
-        .when('triggerOn', ([triggerOn], schema) =>
-          triggerOn === 'filter' ? schema.required() : schema
-        ),
-      filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
-        triggerOn === 'filter' ? schema.required() : schema
-      )
-    })
+			// Filter
+			filterVersion: yup
+				.string()
+				.when('triggerOn', ([triggerOn], schema) =>
+					triggerOn === 'filter' ? schema.required() : schema
+				),
+			filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
+				triggerOn === 'filter' ? schema.required() : schema
+			)
+		})
 
-    return onchainEventSchema.validate(options)
-  }
+		return onchainEventSchema.validate(options)
+	}
 }

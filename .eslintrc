@@ -1,18 +1,39 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint", "prettier"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended",
+		"prettier"
+	],
+	"env": {
+		"browser": true,
+		"node": true
+	},
+  "ignorePatterns": [
+    "dist/*"
   ],
-  "env": {
-    "browser": true,
-    "node": true
-  },
-  "rules": {
-    "prettier/prettier": ["error", { "semi": false, "singleQuote": true, "trailingComma": "none" }]
-  }
+	"rules": {
+		"prettier/prettier": [
+			"error",
+			{
+				"printWidth": 80,
+				"tabWidth": 2,
+				"singleQuote": true,
+				"trailingComma": "none",
+				"arrowParens": "avoid",
+				"bracketSpacing": true,
+				"useTabs": true,
+				"endOfLine": "auto",
+				"singleAttributePerLine": false,
+				"bracketSameLine": false,
+				"jsxBracketSameLine": false,
+				"jsxSingleQuote": false,
+				"quoteProps": "as-needed",
+				"semi": false
+			}
+		]
+	}
 }
