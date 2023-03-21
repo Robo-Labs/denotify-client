@@ -267,7 +267,7 @@ export class FilterBuilder {
 					case 'Address':
 						return schema.oneOf(['is', '!is', 'isEmpty', '!isEmpty'])
 					case 'Number':
-						return schema.oneOf(['String', 'Address', 'Number'])
+						return schema.oneOf(['eq', '!eq', 'gt', 'gte', 'lt', 'lte'])
 					default:
 						throw new Error('Invalid Filter Data Type')
 				}
