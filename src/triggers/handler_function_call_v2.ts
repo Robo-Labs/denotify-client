@@ -1,7 +1,7 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
 import { Condition } from '../types/types.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
-import { Network, TriggerRawConfig } from './trigger.js'
+import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import * as yup from 'yup'
 
 type TimeBase = 'blocks' | 'time'
@@ -88,35 +88,35 @@ export type HandlerFunctionCallV2RawUpdate = {
 }
 
 export class HandlerFunctionCallV2 {
-	public static SimpleToRaw(
+	public static async SimpleToRaw(
 		name: string,
 		network: Network,
 		config: PollFunctionV2
-	): TriggerRawConfig {
+	): Promise<TriggerRawConfig> {
 		return {
 			alertType: 'event', // doesn't matter, deprecated
 			network,
 			nickname: name,
 			type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
-			handler: config
+			handler: (await HandlerFunctionCallV2.convertAndValidate(
+				config
+			)) as HandlerRawConfig
 		}
 	}
 
-	public static validateCreate(options: any) {
+	public static async convertAndValidate(
+		options: PollFunctionV2
+	): Promise<HandlerFunctionCallV2RawConfig> {
 		const timePeriodRegex = /^(\d+)([SMHD])$/i
 
-		const onchainEventSchema = yup.object({
+		const schema = yup.object({
 			timeBase: yup.string().oneOf(['blocks', 'time']).required(),
-
-			// Blocks config
 			nBlocks: yup
 				.number()
 				.min(10)
 				.when('timeBase', ([timeBase], schema) =>
 					timeBase === 'blocks' ? schema.required() : schema
 				),
-
-			// Or Time config
 			timePeriod: yup
 				.string()
 				.matches(
@@ -127,28 +127,24 @@ export class HandlerFunctionCallV2 {
 					timeBase === 'time' ? schema.required() : schema
 				),
 			startTime: yup.number().default(0),
-
-			// Debouncing. Default is 0
-			debounceCount: yup.number(),
-
-			// Functions
-			functions: FunctionBuilder.schema(),
-
-			// Trigger
+			debounceCount: yup.number().default(0),
+			functions: FunctionBuilder.schema().required(),
 			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
 			latch: yup.boolean().default(false),
-
-			// Filter
 			filterVersion: yup
 				.string()
 				.when('triggerOn', ([triggerOn], schema) =>
-					triggerOn === 'filter' ? schema.required() : schema
+					triggerOn === 'filter'
+						? schema.default('0')
+						: schema.nullable().default(null)
 				),
 			filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
-				triggerOn === 'filter' ? schema.required() : schema
+				triggerOn === 'filter'
+					? schema.required()
+					: schema.nullable().default(null)
 			)
 		})
 
-		return onchainEventSchema.validate(options)
+		return schema.validate(options)
 	}
 }

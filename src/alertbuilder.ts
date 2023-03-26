@@ -2,22 +2,13 @@ import {
 	NotificationConfig,
 	NotificationTypeId
 } from './notifications/notification.js'
-import {
-	DiscordWebhook,
-	NotifyDiscordWebhook
-} from './notifications/notify_discord_webhook.js'
-import {
-	HandlerFunctionCall,
-	PollFunctionV1
-} from './triggers/handler_function_call.js'
-import {
-	HandlerFunctionCallV2,
-	PollFunctionV2
-} from './triggers/handler_function_call_v2.js'
-import {
-	HandlerOnchainEvent,
-	OnchainEventV1
-} from './triggers/handler_onchain_event.js'
+import { DiscordWebhook } from './notifications/notify_discord_webhook.js'
+import { Email } from './notifications/notify_email.js'
+import { Telegram } from './notifications/notify_telegram.js'
+import { PollFunctionV1 } from './triggers/handler_function_call.js'
+import { PollFunctionV2 } from './triggers/handler_function_call_v2.js'
+import { OnchainEventV1 } from './triggers/handler_onchain_event.js'
+import { OnchainEventV2 } from './triggers/handler_onchain_event_v2.js'
 import { Network, TriggerConfig, TriggerTypeId } from './triggers/trigger.js'
 import { AlertConfig } from './types/types.js'
 
@@ -50,10 +41,12 @@ export class AlertBuilder {
 		id: TTriggerTypeId,
 		options: TTriggerTypeId extends 'PollFunctionV2'
 			? PollFunctionV2
-			: TTriggerTypeId extends 'OnchainEventV1'
-			? OnchainEventV1
+			: TTriggerTypeId extends 'OnchainEventV2'
+			? OnchainEventV2
 			: TTriggerTypeId extends 'PollFunctionV1'
 			? PollFunctionV1
+			: TTriggerTypeId extends 'OnchainEventV1'
+			? OnchainEventV1
 			: never
 	): AlertBuilder {
 		this.triggerId = id
@@ -63,29 +56,17 @@ export class AlertBuilder {
 
 	public withNotification<TNotificationTypeId extends NotificationTypeId>(
 		id: TNotificationTypeId,
-		options: TNotificationTypeId extends 'Discord' ? DiscordWebhook : never
+		options: TNotificationTypeId extends 'Discord'
+			? DiscordWebhook
+			: TNotificationTypeId extends 'Telegram'
+			? Telegram
+			: TNotificationTypeId extends 'Email'
+			? Email
+			: never
 	): AlertBuilder {
 		this.notificationId = id
 		this.notification = options
 		return this
-	}
-
-	public async validate() {
-		// Validate trigger
-		switch (this.triggerId) {
-			case 'OnchainEventV1':
-				return HandlerOnchainEvent.validateCreate(this.trigger)
-			case 'PollFunctionV1':
-				return HandlerFunctionCall.validateCreate(this.trigger)
-			case 'PollFunctionV2':
-				return HandlerFunctionCallV2.validateCreate(this.trigger)
-		}
-		switch (this.notificationId) {
-			case 'Discord':
-				return NotifyDiscordWebhook.validateCreate(this.notification)
-			default:
-				throw new Error('Invalid notification type')
-		}
 	}
 
 	public async config(): Promise<AlertConfig> {
@@ -100,8 +81,6 @@ export class AlertBuilder {
 		if (this.network === undefined) {
 			throw new Error('Network not configured')
 		}
-
-		await this.validate()
 
 		return {
 			name: this.name,

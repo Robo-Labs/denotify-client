@@ -1,5 +1,5 @@
 import { Condition } from '../types/types.js'
-import { Network, TriggerRawConfig } from './trigger.js'
+import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import * as yup from 'yup'
 
 const HANDLER_FUNCTION_CALL_V1_RAW_ID = 'handler_function_call'
@@ -58,29 +58,38 @@ export type HandlerFunctionCallRawUpdate = {
 }
 
 export class HandlerFunctionCall {
-	public static SimpleToRaw(
+	public static async SimpleToRaw(
 		name: string,
 		network: Network,
 		config: PollFunctionV1
-	): TriggerRawConfig {
+	): Promise<TriggerRawConfig> {
 		return {
 			alertType: 'event', // doesn't matter, deprecated
 			network,
 			nickname: name,
 			type: HANDLER_FUNCTION_CALL_V1_RAW_ID,
-			handler: config
+			handler: (await HandlerFunctionCall.convertAndValidate(
+				config
+			)) as HandlerRawConfig
 		}
 	}
 
-	public static validateCreate(options: any) {
+	public static convertAndValidate(
+		options: PollFunctionV1
+	): Promise<HandlerFunctionCallRawConfig> {
 		const requiredWhenConditional = ([condition]: string[], schema: any) =>
 			condition === 'true' ? schema.notRequired() : schema.required()
 
 		const schema = yup.object({
 			address: yup.string().required(),
 			abi: yup.array().required(),
-			nBlocks: yup.number().min(10),
-			condition: yup.string().oneOf(['>', '>=', '<', '<=', '=', 'true']),
+			nBlocks: yup.number().default(100).min(10).required(),
+			function: yup.string().required(),
+			condition: yup
+				.string()
+				.default('true')
+				.oneOf(['>', '>=', '<', '<=', '=', 'true'])
+				.required(),
 			constant: yup.number().min(0).when('condition', requiredWhenConditional),
 			responseArgIndex: yup
 				.number()

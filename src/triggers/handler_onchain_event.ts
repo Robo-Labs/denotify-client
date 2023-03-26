@@ -1,4 +1,4 @@
-import { Network, TriggerRawConfig } from './trigger.js'
+import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import { Condition } from '../types/types.js'
 import * as yup from 'yup'
 
@@ -48,29 +48,37 @@ export type HandlerOnchainEventRawUpdate = {
 }
 
 export class HandlerOnchainEvent {
-	public static SimpleToRaw(
+	public static async SimpleToRaw(
 		name: string,
 		network: Network,
 		config: OnchainEventV1
-	): TriggerRawConfig {
+	): Promise<TriggerRawConfig> {
 		return {
 			alertType: 'event', // doesn't matter, deprecated
 			network,
 			nickname: name,
 			type: HANDLER_ONCHAIN_EVENT_V1_RAW_ID,
-			handler: config
+			handler: (await HandlerOnchainEvent.convertAndValidate(
+				config
+			)) as HandlerRawConfig
 		}
 	}
 
-	public static validateCreate(options: any) {
+	public static async convertAndValidate(
+		options: OnchainEventV1
+	): Promise<HandlerOnchainEventRawConfig> {
 		const requiredWhenConditional = ([condition]: string[], schema: any) =>
 			condition === 'true' ? schema.notRequired() : schema.required()
 
-		const onchainEventSchema = yup.object({
+		const schema = yup.object({
 			address: yup.string().required(),
 			event: yup.string().required(), // TODO check event is in abi
 			abi: yup.array().required(),
-			condition: yup.string().oneOf(['>', '>=', '<', '<=', '=', 'true']),
+			condition: yup
+				.string()
+				.default('true')
+				.oneOf(['>', '>=', '<', '<=', '=', 'true'])
+				.required(),
 			constant: yup.number().min(0).when('condition', requiredWhenConditional),
 			paramsIndex: yup
 				.number()
@@ -81,9 +89,7 @@ export class HandlerOnchainEvent {
 				.min(0)
 				.when('condition', requiredWhenConditional)
 		})
-		return onchainEventSchema.validate(options)
-	}
 
-	// public static validateUpdate(options: any) {
-	// }
+		return await schema.validate(options)
+	}
 }

@@ -114,13 +114,13 @@ export class DeNotifyClient {
 	}
 
 	public async createAlert(config: AlertConfig) {
-		const trigger = Trigger.SimpleToRaw(
+		const trigger = await Trigger.SimpleToRaw(
 			config.name,
 			config.triggerId,
 			config.network,
 			config.trigger
 		)
-		const notification = Notification.SimpleToRaw(
+		const notification = await Notification.SimpleToRaw(
 			config.notificationId,
 			config.notification
 		)
@@ -148,7 +148,6 @@ export class DeNotifyClient {
 				url.searchParams.append(param, options.params[param])
 			}
 		}
-		console.log(url.toString())
 
 		const payload: any = {
 			method,
@@ -165,12 +164,12 @@ export class DeNotifyClient {
 	public async getAbi(
 		network: string,
 		address: string
-	): Promise<{ abi: any[]; proxy?: string }> {
+	): Promise<{ abi: unknown[]; proxy?: string; hash: string }> {
 		const ret = await this.request('get', `abi/${network}/${address}`)
 		return ret
 	}
 
-	public async getAbiHash(abi: any) {
+	public async getAbiHash(abi: unknown) {
 		const ret = await this.request('post', 'abi', { body: abi })
 		return ret.hash
 	}

@@ -29,14 +29,15 @@ export class FunctionBuilder {
 		address: string,
 		func: string,
 		args: T[],
-		abi: any
+		abi: any,
+		abiHash?: string
 	) {
 		const contract = new ethers.Contract(address, abi)
 		contract.interface.encodeFunctionData(func, args)
 		this.data.push({
 			address,
 			bytecode: contract.interface.encodeFunctionData(func, args),
-			abiHash: await this.getAbiHash(abi),
+			abiHash: abiHash || (await this.getAbiHash(abi)),
 			function: func
 		})
 		return this
