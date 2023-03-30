@@ -1,3 +1,4 @@
+import { Alert } from './denotifyclient.js'
 import {
 	NotificationConfig,
 	NotificationTypeId
@@ -10,7 +11,6 @@ import { PollFunctionV2 } from './triggers/handler_function_call_v2.js'
 import { OnchainEventV1 } from './triggers/handler_onchain_event.js'
 import { OnchainEventV2 } from './triggers/handler_onchain_event_v2.js'
 import { Network, TriggerConfig, TriggerTypeId } from './triggers/trigger.js'
-import { AlertConfig } from './types/types.js'
 
 export class AlertBuilder {
 	private network?: Network
@@ -69,7 +69,7 @@ export class AlertBuilder {
 		return this
 	}
 
-	public async config(): Promise<AlertConfig> {
+	public async config(): Promise<Alert> {
 		if (this.trigger === undefined || this.triggerId === undefined) {
 			throw new Error('Trigger not configured')
 		}

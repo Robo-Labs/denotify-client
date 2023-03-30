@@ -2,13 +2,20 @@ import { createClient } from '@supabase/supabase-js'
 import axios from 'axios'
 import {
 	Notification,
+	NotificationHelper,
+	NotificationRawConfig,
 	NotificationRawResponse,
+	NotificationTypeId,
 	NotifyRawId
 } from './notifications/notification.js'
-import { AlertConfig, DeNotifyOptions } from './types/types.js'
+import { DeNotifyOptions } from './types/types.js'
 import {
+	Network,
 	Trigger,
+	TriggerHelper,
+	TriggerRawConfig,
 	TriggerRawResponse,
+	TriggerTypeId,
 	TriggerTypeRawId,
 	TriggerUpdate
 } from './triggers/trigger.js'
@@ -36,6 +43,22 @@ type AlertHistory = {
 	metadata: any
 	subtype: TriggerTypeRawId | NotifyRawId
 }
+
+export type Alert = {
+	name: string
+	network: Network
+	id?: number
+	triggerId: TriggerTypeId
+	trigger: Trigger
+	notificationId: NotificationTypeId
+	notification: Notification
+}
+
+type AlertRawCreate = {
+	trigger: TriggerRawConfig
+	notification: NotificationRawConfig
+}
+
 type AlertRawResponse = {
 	alertId: number
 	trigger: TriggerRawResponse
@@ -102,30 +125,19 @@ export class DeNotifyClient {
 		}
 	}
 
-	// TODO - Beutify the reponse
-	public async getAlert(id: number): Promise<AlertRawResponse> {
-		const alerts = await this.request('get', `alerts/${id}`)
-		return alerts[0]
+	public async getAlert(id: number): Promise<Alert> {
+		const raw = (await this.request('get', `alerts/${id}`))[0] as AlertRawResponse
+		return this.decode(raw)
 	}
 
-	public async getAlerts(): Promise<AlertRawResponse[]> {
-		const alerts = await this.request('get', 'alerts')
-		return alerts
+	public async getAlerts(): Promise<Alert[]> {
+		const raw = await this.request('get', 'alerts') as AlertRawResponse[]
+		return Promise.all(raw.map(raw => this.decode(raw)))
 	}
 
-	public async createAlert(config: AlertConfig) {
-		const trigger = await Trigger.SimpleToRaw(
-			config.name,
-			config.triggerId,
-			config.network,
-			config.trigger
-		)
-		const notification = await Notification.SimpleToRaw(
-			config.notificationId,
-			config.notification
-		)
+	public async createAlert(config: Alert) {
 		const alert = await this.request('post', `alerts`, {
-			body: { trigger, notification }
+			body: this.encode(config)
 		})
 		return alert
 	}
@@ -133,6 +145,35 @@ export class DeNotifyClient {
 	public async deleteAlert(id: number) {
 		const alerts = await this.request('delete', `alerts/${id}`)
 		return alerts
+	}
+
+	private async decode(raw: AlertRawResponse): Promise<Alert> {
+		const alert: Alert = {
+			id: raw.alertId,
+			name: raw.trigger.nickname,
+			network: raw.trigger.network,
+			triggerId: TriggerHelper.RawTypeToSimpleType(raw.trigger.type),
+			trigger: await TriggerHelper.RawToSimple(raw.trigger),
+			notificationId: NotificationHelper.RawTypeToSimpleType(raw.notification.notify_type),
+			notification: await NotificationHelper.RawToSimple(raw.notification)
+		}
+		return alert
+	}
+
+	private async encode(alert: Alert): Promise<AlertRawCreate> {
+		const raw: AlertRawCreate = {
+			trigger: await TriggerHelper.SimpleToRaw(
+				alert.name,
+				alert.triggerId,
+				alert.network,
+				alert.trigger
+			),
+			notification: await NotificationHelper.SimpleToRaw(
+				alert.notificationId,
+				alert.notification
+			)
+		}
+		return raw
 	}
 
 	private async request(

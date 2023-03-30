@@ -63,16 +63,25 @@ export type HandlerFunctionCallV2Update =
 export type HandlerFunctionCallV2RawResponse = {
 	id: number
 	created_at: string
-	nBlocks: number
-	address: string
-	fixedArgs: string[]
-	responseArgIndex: number
-	responseArgDecimals: number
-	function: string
-	condition: Condition
-	constant: number
-	abi: string[]
-	version: number
+	// Poll period configuration
+	timeBase: TimeBase
+	nBlocks?: number
+	timePeriod?: string | null // Grafana style time format
+	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
+
+	// Debouncing. Default is 0
+	debounceCount?: number
+
+	// Functions
+	functions: FunctionCallerConfig
+
+	// Trigger
+	triggerOn: 'always' | 'filter'
+	latch?: boolean // If triggerOn = 'always' latch must be false.
+
+	// Filter
+	filterVersion?: string
+	filter?: FilterConfig
 }
 
 export type HandlerFunctionCallV2RawUpdate = {

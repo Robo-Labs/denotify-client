@@ -4,7 +4,7 @@ import * as yup from 'yup'
 // Simple Config
 export type Email = {
 	email: string
-	subject?: string
+	subject: string | null
 	html: string
 }
 
@@ -15,8 +15,8 @@ export const EmailSchema = yup.object({
 })
 
 // Raw Config
-export type NotifyEmailRawId = 'notify_telegram'
-export const NOTIFY_EMAIL_RAW_ID = 'notify_telegram'
+export type NotifyEmailRawId = 'notify_email'
+export const NOTIFY_EMAIL_RAW_ID = 'notify_email'
 
 export type NotifyEmailRawConfig = {
 	email: string
