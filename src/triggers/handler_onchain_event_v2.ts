@@ -1,5 +1,4 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
-import { Condition } from '../types/types.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
 import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import * as yup from 'yup'
@@ -55,28 +54,27 @@ export type HandlerOnchainEventV2Update =
 export type HandlerOnchainEventV2RawResponse = {
 	id: number
 	created_at: string
-	nBlocks: number
-	address: string
-	fixedArgs: string[]
-	responseArgIndex: number
-	responseArgDecimals: number
-	function: string
-	condition: Condition
-	constant: number
-	abi: string[]
-	version: number
+	addresses: string[]
+	abiHash: string
+	event: string
+	debounceCount?: number
+	functions: FunctionCallerConfig | null
+	triggerOn: 'always' | 'filter'
+	latch: boolean // If triggerOn = 'always' latch must be false.
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerOnchainEventV2RawUpdate = {
-	address?: string
-	function?: string
-	abi?: any
-	constant?: number
-	nBlocks?: number
-	confition?: Condition
-	fixedArgs?: (string | number)[]
-	responseArgIndex?: number
-	responseArgDecimals?: number
+	addresses: string[]
+	abiHash: string
+	event: string
+	debounceCount?: number
+	functions: FunctionCallerConfig | null
+	triggerOn: 'always' | 'filter'
+	latch: boolean // If triggerOn = 'always' latch must be false.
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export class HandlerOnchainEventV2 {
