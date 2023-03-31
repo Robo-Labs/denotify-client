@@ -67,7 +67,7 @@ type AlertRawResponse = {
 
 export class DeNotifyClient {
 	private headers: any = {}
-	private constructor(private url: string, token: string) {
+	public constructor(private url: string, token: string) {
 		this.headers = {
 			Authorization: `Bearer ${token}`,
 			'Content-Type': 'application/json'
