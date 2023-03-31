@@ -1,3 +1,5 @@
+import { Alert } from './denotifyclient.js'
+
 import {
 	NotificationConfig,
 	NotificationTypeId
@@ -9,13 +11,17 @@ import { PollFunctionV1 } from './triggers/handler_function_call.js'
 import { PollFunctionV2 } from './triggers/handler_function_call_v2.js'
 import { OnchainEventV1 } from './triggers/handler_onchain_event.js'
 import { OnchainEventV2 } from './triggers/handler_onchain_event_v2.js'
-import { Network, TriggerConfig, TriggerTypeId } from './triggers/trigger.js'
-import { AlertConfig } from './types/types.js'
+import {
+	Network,
+	Trigger,
+	TriggerHelper,
+	TriggerTypeId
+} from './triggers/trigger.js'
 
 export class AlertBuilder {
 	private network?: Network
 	private triggerId?: TriggerTypeId
-	private trigger?: TriggerConfig
+	private trigger?: Trigger
 	private notificationId?: NotificationTypeId
 	private notification?: NotificationConfig
 
@@ -40,17 +46,17 @@ export class AlertBuilder {
 	public withTrigger<TTriggerTypeId extends TriggerTypeId>(
 		id: TTriggerTypeId,
 		options: TTriggerTypeId extends 'PollFunctionV2'
-			? PollFunctionV2
+			? Partial<PollFunctionV2>
 			: TTriggerTypeId extends 'OnchainEventV2'
-			? OnchainEventV2
+			? Partial<OnchainEventV2>
 			: TTriggerTypeId extends 'PollFunctionV1'
-			? PollFunctionV1
+			? Partial<PollFunctionV1>
 			: TTriggerTypeId extends 'OnchainEventV1'
 			? OnchainEventV1
 			: never
 	): AlertBuilder {
 		this.triggerId = id
-		this.trigger = options
+		this.trigger = TriggerHelper.Validate(id, options)
 		return this
 	}
 
@@ -69,7 +75,7 @@ export class AlertBuilder {
 		return this
 	}
 
-	public async config(): Promise<AlertConfig> {
+	public async config(): Promise<Alert> {
 		if (this.trigger === undefined || this.triggerId === undefined) {
 			throw new Error('Trigger not configured')
 		}

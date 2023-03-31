@@ -1,5 +1,4 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
-import { Condition } from '../types/types.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
 import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import * as yup from 'yup'
@@ -17,15 +16,15 @@ export type OnchainEventV2 = {
 	debounceCount?: number
 
 	// Functions
-	functions?: FunctionCallerConfig
+	functions: FunctionCallerConfig | null
 
 	// Trigger
 	triggerOn?: 'always' | 'filter' // Default = 'always'
 	latch?: boolean // If triggerOn = 'always' latch must be false.
 
 	// Filter
-	filterVersion?: string
-	filter?: FilterConfig
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerOnchainEventV2RawConfig = {
@@ -55,29 +54,44 @@ export type HandlerOnchainEventV2Update =
 export type HandlerOnchainEventV2RawResponse = {
 	id: number
 	created_at: string
-	nBlocks: number
-	address: string
-	fixedArgs: string[]
-	responseArgIndex: number
-	responseArgDecimals: number
-	function: string
-	condition: Condition
-	constant: number
-	abi: string[]
-	version: number
+	addresses: string[]
+	abiHash: string
+	event: string
+	debounceCount?: number
+	functions: FunctionCallerConfig | null
+	triggerOn: 'always' | 'filter'
+	latch: boolean // If triggerOn = 'always' latch must be false.
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerOnchainEventV2RawUpdate = {
-	address?: string
-	function?: string
-	abi?: any
-	constant?: number
-	nBlocks?: number
-	confition?: Condition
-	fixedArgs?: (string | number)[]
-	responseArgIndex?: number
-	responseArgDecimals?: number
+	addresses: string[]
+	abiHash: string
+	event: string
+	debounceCount?: number
+	functions: FunctionCallerConfig | null
+	triggerOn: 'always' | 'filter'
+	latch: boolean // If triggerOn = 'always' latch must be false.
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
+
+const schema = yup.object({
+	addresses: yup.array().of(yup.string().required()).required(),
+	abiHash: yup.string().required(),
+	event: yup.string().required(),
+	debounceCount: yup.number().default(0),
+	functions: FunctionBuilder.schema().nullable().default(null),
+	triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
+	latch: yup.boolean().default(false),
+	filterVersion: yup.string().nullable().default(null),
+	filter: FilterBuilder.schema()
+		.when('triggerOn', ([triggerOn], schema) =>
+			triggerOn === 'filter' ? schema : schema.nullable().default(null)
+		)
+		.required()
+})
 
 export class HandlerOnchainEventV2 {
 	public static async SimpleToRaw(
@@ -90,31 +104,11 @@ export class HandlerOnchainEventV2 {
 			network,
 			nickname: name,
 			type: HANDLER_ONCHAIN_EVENT_V2_RAW_ID,
-			handler: (await HandlerOnchainEventV2.convertAndValidate(
-				config
-			)) as HandlerRawConfig
+			handler: await this.validate(config)
 		}
 	}
 
-	public static async convertAndValidate(
-		options: OnchainEventV2
-	): Promise<HandlerOnchainEventV2RawConfig> {
-		const onchainEventSchema = yup.object({
-			addresses: yup.array().of(yup.string().required()).required(),
-			abiHash: yup.string().required(),
-			event: yup.string().required(),
-			debounceCount: yup.number().default(0),
-			functions: FunctionBuilder.schema().nullable().default(null),
-			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
-			latch: yup.boolean().default(false),
-			filterVersion: yup.string().nullable().default(null),
-			filter: FilterBuilder.schema()
-				.when('triggerOn', ([triggerOn], schema) =>
-					triggerOn === 'filter' ? schema : schema.nullable().default(null)
-				)
-				.required()
-		})
-
-		return onchainEventSchema.validate(options)
+	public static validate(options: Partial<OnchainEventV2>): HandlerRawConfig {
+		return schema.validateSync(options)
 	}
 }

@@ -68,15 +68,11 @@ export class HandlerFunctionCall {
 			network,
 			nickname: name,
 			type: HANDLER_FUNCTION_CALL_V1_RAW_ID,
-			handler: (await HandlerFunctionCall.convertAndValidate(
-				config
-			)) as HandlerRawConfig
+			handler: await this.validate(config)
 		}
 	}
 
-	public static convertAndValidate(
-		options: PollFunctionV1
-	): Promise<HandlerFunctionCallRawConfig> {
+	public static validate(options: Partial<PollFunctionV1>): HandlerRawConfig {
 		const requiredWhenConditional = ([condition]: string[], schema: any) =>
 			condition === 'true' ? schema.notRequired() : schema.required()
 
@@ -100,6 +96,6 @@ export class HandlerFunctionCall {
 				.min(0)
 				.when('condition', requiredWhenConditional)
 		})
-		return schema.validate(options)
+		return schema.validateSync(options)
 	}
 }

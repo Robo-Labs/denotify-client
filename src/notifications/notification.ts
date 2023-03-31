@@ -23,9 +23,15 @@ import {
 	Telegram
 } from './notify_telegram.js'
 
+
 // Types user is expossed to
 export type NotificationTypeId = 'Discord' | 'Telegram' | 'Email'
 export type NotificationConfig = DiscordWebhook | Telegram | Email
+export type Notification = NotificationConfig & {
+	error?: boolean
+	error_message?: string | null
+	error_timestamp?: number | null
+}
 
 // Raw Schema Types
 export type NotifyRawId =
@@ -59,7 +65,7 @@ export type NotificationRawResponse = {
 	error_timestamp: number | null
 }
 
-export class Notification {
+export class NotificationHelper {
 	public static async SimpleToRaw(
 		id: NotificationTypeId,
 		config: NotificationConfig
@@ -71,6 +77,39 @@ export class Notification {
 				return NotifyTelegram.SimpleToRaw(config as Telegram)
 			case 'Email':
 				return NotifyEmail.SimpleToRaw(config as Email)
+		}
+	}
+
+	public static RawToSimple(
+		raw: NotificationRawResponse
+	): Notification {
+		return {
+			...raw.notify,
+			error: raw.error,
+			error_message: raw.error_message,
+			error_timestamp: raw.error_timestamp
+		}
+	}
+
+	public static RawTypeToSimpleType(id: NotifyRawId): NotificationTypeId {
+		switch (id) {
+			case 'notify_discord_webhook':
+				return 'Discord'
+			case 'notify_telegram':
+				return 'Telegram'
+			case 'notify_email':
+				return 'Email'
+		}
+	}
+
+	public static SimpleTypeToRawType(id: NotificationTypeId): NotifyRawId {
+		switch (id) {
+			case 'Discord':
+				return 'notify_discord_webhook'
+			case 'Telegram':
+				return 'notify_telegram'
+			case 'Email':
+				return 'notify_email'
 		}
 	}
 }

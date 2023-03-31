@@ -2,12 +2,16 @@ import { AlertBuilder } from '../alertbuilder.js'
 import { DeNotifyClient } from '../denotifyclient.js'
 import { FunctionBuilder } from '../functionbuilder.js'
 import { FilterBuilder } from '../util/filter.js'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // Simple App to demonstrate usage. Created a balance monitoring alert, updates it and deletes it
 async function main() {
 	const api = await DeNotifyClient.create({
 		email: process.env.EMAIL,
-		password: process.env.PASSWORD
+		password: process.env.PASSWORD,
+		anonKey: process.env.ANON_KEY,
+		projectId: process.env.PROJECT_ID
 	})
 
 	const network = 'avalanche'
