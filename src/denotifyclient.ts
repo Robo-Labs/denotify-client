@@ -126,19 +126,20 @@ export class DeNotifyClient {
 	}
 
 	public async getAlert(id: number): Promise<Alert> {
-		const raw = (await this.request('get', `alerts/${id}`))[0] as AlertRawResponse
-		return this.decode(raw)
+		const raw = (
+			await this.request('get', `alerts/${id}`)
+		)[0] as AlertRawResponse
+		return await this.decode(raw)
 	}
 
 	public async getAlerts(): Promise<Alert[]> {
-		const raw = await this.request('get', 'alerts') as AlertRawResponse[]
+		const raw = (await this.request('get', 'alerts')) as AlertRawResponse[]
 		return Promise.all(raw.map(raw => this.decode(raw)))
 	}
 
 	public async createAlert(config: Alert) {
-		const alert = await this.request('post', `alerts`, {
-			body: this.encode(config)
-		})
+		const body = await this.encode(config)
+		const alert = await this.request('post', `alerts`, { body })
 		return alert
 	}
 
@@ -154,7 +155,9 @@ export class DeNotifyClient {
 			network: raw.trigger.network,
 			triggerId: TriggerHelper.RawTypeToSimpleType(raw.trigger.type),
 			trigger: await TriggerHelper.RawToSimple(raw.trigger),
-			notificationId: NotificationHelper.RawTypeToSimpleType(raw.notification.notify_type),
+			notificationId: NotificationHelper.RawTypeToSimpleType(
+				raw.notification.notify_type
+			),
 			notification: await NotificationHelper.RawToSimple(raw.notification)
 		}
 		return alert

@@ -37,7 +37,6 @@ export type Network =
 	| 'arbitrum'
 	| 'canto'
 
-
 // Simple Types
 export type TriggerConfig =
 	| PollFunctionV2
@@ -141,14 +140,27 @@ export class TriggerHelper {
 				throw new Error('Invalid Trigger ID')
 		}
 	}
-	
+	public static Validate(
+		id: TriggerTypeId,
+		trigger: Partial<Trigger>
+	): Trigger {
+		switch (id) {
+			case 'PollFunctionV2': return HandlerFunctionCallV2.validate(trigger as PollFunctionV2)
+			case 'PollFunctionV1': return HandlerFunctionCall.validate(trigger as PollFunctionV1)
+			case 'OnchainEventV1': return HandlerOnchainEvent.validate(trigger as OnchainEventV1)
+			case 'OnchainEventV2': return HandlerOnchainEventV2.validate(trigger as OnchainEventV2)
+			default:
+				throw new Error('Invalid Trigger ID')
+		}
+	}
+
 	public static RawToSimple(trigger: TriggerRawResponse): Trigger {
 		const error = {
 			error: trigger.error,
 			error_message: trigger.error_message,
 			error_timestamp: trigger.error_timestamp
 		}
-		return { ...error, ...trigger.handler}
+		return { ...error, ...trigger.handler }
 	}
 
 	public static SimpleTypeToRawType(type: TriggerTypeId): TriggerTypeRawId {

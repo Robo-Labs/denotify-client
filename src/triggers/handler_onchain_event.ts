@@ -58,15 +58,11 @@ export class HandlerOnchainEvent {
 			network,
 			nickname: name,
 			type: HANDLER_ONCHAIN_EVENT_V1_RAW_ID,
-			handler: (await HandlerOnchainEvent.convertAndValidate(
-				config
-			)) as HandlerRawConfig
+			handler: await this.validate(config)
 		}
 	}
 
-	public static async convertAndValidate(
-		options: OnchainEventV1
-	): Promise<HandlerOnchainEventRawConfig> {
+	public static validate(options: OnchainEventV1): HandlerRawConfig {
 		const requiredWhenConditional = ([condition]: string[], schema: any) =>
 			condition === 'true' ? schema.notRequired() : schema.required()
 
@@ -90,6 +86,6 @@ export class HandlerOnchainEvent {
 				.when('condition', requiredWhenConditional)
 		})
 
-		return await schema.validate(options)
+		return schema.validateSync(options)
 	}
 }

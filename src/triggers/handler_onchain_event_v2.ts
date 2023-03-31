@@ -16,15 +16,15 @@ export type OnchainEventV2 = {
 	debounceCount?: number
 
 	// Functions
-	functions?: FunctionCallerConfig
+	functions: FunctionCallerConfig | null
 
 	// Trigger
 	triggerOn?: 'always' | 'filter' // Default = 'always'
 	latch?: boolean // If triggerOn = 'always' latch must be false.
 
 	// Filter
-	filterVersion?: string
-	filter?: FilterConfig
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerOnchainEventV2RawConfig = {
@@ -77,6 +77,22 @@ export type HandlerOnchainEventV2RawUpdate = {
 	filter: FilterConfig | null
 }
 
+const schema = yup.object({
+	addresses: yup.array().of(yup.string().required()).required(),
+	abiHash: yup.string().required(),
+	event: yup.string().required(),
+	debounceCount: yup.number().default(0),
+	functions: FunctionBuilder.schema().nullable().default(null),
+	triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
+	latch: yup.boolean().default(false),
+	filterVersion: yup.string().nullable().default(null),
+	filter: FilterBuilder.schema()
+		.when('triggerOn', ([triggerOn], schema) =>
+			triggerOn === 'filter' ? schema : schema.nullable().default(null)
+		)
+		.required()
+})
+
 export class HandlerOnchainEventV2 {
 	public static async SimpleToRaw(
 		name: string,
@@ -88,31 +104,11 @@ export class HandlerOnchainEventV2 {
 			network,
 			nickname: name,
 			type: HANDLER_ONCHAIN_EVENT_V2_RAW_ID,
-			handler: (await HandlerOnchainEventV2.convertAndValidate(
-				config
-			)) as HandlerRawConfig
+			handler: await this.validate(config)
 		}
 	}
 
-	public static async convertAndValidate(
-		options: OnchainEventV2
-	): Promise<HandlerOnchainEventV2RawConfig> {
-		const onchainEventSchema = yup.object({
-			addresses: yup.array().of(yup.string().required()).required(),
-			abiHash: yup.string().required(),
-			event: yup.string().required(),
-			debounceCount: yup.number().default(0),
-			functions: FunctionBuilder.schema().nullable().default(null),
-			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
-			latch: yup.boolean().default(false),
-			filterVersion: yup.string().nullable().default(null),
-			filter: FilterBuilder.schema()
-				.when('triggerOn', ([triggerOn], schema) =>
-					triggerOn === 'filter' ? schema : schema.nullable().default(null)
-				)
-				.required()
-		})
-
-		return onchainEventSchema.validate(options)
+	public static validate(options: Partial<OnchainEventV2>): HandlerRawConfig {
+		return schema.validateSync(options)
 	}
 }

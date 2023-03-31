@@ -24,15 +24,15 @@ export type PollFunctionV2 = {
 	debounceCount?: number
 
 	// Functions
-	functions: FunctionCallerConfig
+	functions: FunctionCallerConfig | null
 
 	// Trigger
 	triggerOn: 'always' | 'filter'
 	latch?: boolean // If triggerOn = 'always' latch must be false.
 
 	// Filter
-	filterVersion?: string
-	filter?: FilterConfig
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerFunctionCallV2RawConfig = {
@@ -46,15 +46,15 @@ export type HandlerFunctionCallV2RawConfig = {
 	debounceCount?: number
 
 	// Functions
-	functions: FunctionCallerConfig
+	functions: FunctionCallerConfig | null
 
 	// Trigger
 	triggerOn: 'always' | 'filter'
 	latch?: boolean // If triggerOn = 'always' latch must be false.
 
 	// Filter
-	filterVersion?: string
-	filter?: FilterConfig
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerFunctionCallV2Update =
@@ -68,20 +68,12 @@ export type HandlerFunctionCallV2RawResponse = {
 	nBlocks?: number
 	timePeriod?: string | null // Grafana style time format
 	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
-
-	// Debouncing. Default is 0
 	debounceCount?: number
-
-	// Functions
-	functions: FunctionCallerConfig
-
-	// Trigger
+	functions: FunctionCallerConfig | null
 	triggerOn: 'always' | 'filter'
 	latch?: boolean // If triggerOn = 'always' latch must be false.
-
-	// Filter
-	filterVersion?: string
-	filter?: FilterConfig
+	filterVersion: string | null
+	filter: FilterConfig | null
 }
 
 export type HandlerFunctionCallV2RawUpdate = {
@@ -96,6 +88,45 @@ export type HandlerFunctionCallV2RawUpdate = {
 	responseArgDecimals?: number
 }
 
+const timePeriodRegex = /^(\d+)([SMHD])$/i
+const schema = yup.object({
+	timeBase: yup.string().oneOf(['blocks', 'time']).required(),
+	nBlocks: yup
+		.number()
+		.min(10)
+		.when('timeBase', ([timeBase], schema) =>
+			timeBase === 'blocks' ? schema.required() : schema
+		),
+	timePeriod: yup
+		.string()
+		.matches(
+			timePeriodRegex,
+			'timePeriod must be of the format n[s|m|h|d], eg 10s for 10 seconds'
+		)
+		.when('timeBase', ([timeBase], schema) =>
+			timeBase === 'time' ? schema.required() : schema
+		),
+	startTime: yup.number().default(0),
+	debounceCount: yup.number().default(0),
+	functions: FunctionBuilder.schema().required(),
+	triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
+	latch: yup.boolean().default(false),
+	filterVersion: yup
+		.string()
+		.when('triggerOn', ([triggerOn], schema) =>
+			triggerOn === 'filter'
+				? schema.default('0')
+				: schema.nullable().default(null)
+		)
+		.required(),
+	filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
+			triggerOn === 'filter'
+				? schema.required()
+				: schema.nullable().default(null)
+		)
+		.required()
+})
+
 export class HandlerFunctionCallV2 {
 	public static async SimpleToRaw(
 		name: string,
@@ -107,53 +138,17 @@ export class HandlerFunctionCallV2 {
 			network,
 			nickname: name,
 			type: HANDLER_FUNCTION_CALL_V2_RAW_ID,
-			handler: (await HandlerFunctionCallV2.convertAndValidate(
-				config
-			)) as HandlerRawConfig
+			handler: await this.validate(config)
 		}
 	}
 
-	public static async convertAndValidate(
-		options: PollFunctionV2
-	): Promise<HandlerFunctionCallV2RawConfig> {
-		const timePeriodRegex = /^(\d+)([SMHD])$/i
+	public static validate(options: Partial<PollFunctionV2>): HandlerRawConfig {
+		return schema.validateSync(options)
+	}
 
-		const schema = yup.object({
-			timeBase: yup.string().oneOf(['blocks', 'time']).required(),
-			nBlocks: yup
-				.number()
-				.min(10)
-				.when('timeBase', ([timeBase], schema) =>
-					timeBase === 'blocks' ? schema.required() : schema
-				),
-			timePeriod: yup
-				.string()
-				.matches(
-					timePeriodRegex,
-					'timePeriod must be of the format n[s|m|h|d], eg 10s for 10 seconds'
-				)
-				.when('timeBase', ([timeBase], schema) =>
-					timeBase === 'time' ? schema.required() : schema
-				),
-			startTime: yup.number().default(0),
-			debounceCount: yup.number().default(0),
-			functions: FunctionBuilder.schema().required(),
-			triggerOn: yup.string().oneOf(['always', 'filter']).default('always'),
-			latch: yup.boolean().default(false),
-			filterVersion: yup
-				.string()
-				.when('triggerOn', ([triggerOn], schema) =>
-					triggerOn === 'filter'
-						? schema.default('0')
-						: schema.nullable().default(null)
-				),
-			filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
-				triggerOn === 'filter'
-					? schema.required()
-					: schema.nullable().default(null)
-			)
-		})
-
+	public static async convertFromPartial(
+		options: Partial<PollFunctionV2>
+	): Promise<PollFunctionV2> {
 		return schema.validate(options)
 	}
 }
