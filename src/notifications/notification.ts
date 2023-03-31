@@ -23,10 +23,10 @@ import {
 	Telegram
 } from './notify_telegram.js'
 
-
 // Types user is expossed to
 export type NotificationTypeId = 'Discord' | 'Telegram' | 'Email'
 export type NotificationConfig = DiscordWebhook | Telegram | Email
+
 export type Notification = NotificationConfig & {
 	error?: boolean
 	error_message?: string | null
@@ -80,9 +80,7 @@ export class NotificationHelper {
 		}
 	}
 
-	public static RawToSimple(
-		raw: NotificationRawResponse
-	): Notification {
+	public static RawToSimple(raw: NotificationRawResponse): Notification {
 		return {
 			...raw.notify,
 			error: raw.error,

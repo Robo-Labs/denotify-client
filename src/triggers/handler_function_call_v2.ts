@@ -1,5 +1,4 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
-import { Condition } from '../types/types.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
 import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
 import * as yup from 'yup'
@@ -35,57 +34,12 @@ export type PollFunctionV2 = {
 	filter: FilterConfig | null
 }
 
-export type HandlerFunctionCallV2RawConfig = {
-	// Poll period configuration
-	timeBase: TimeBase
-	nBlocks?: number
-	timePeriod?: string | null // Grafana style time format
-	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
+export type HandlerFunctionCallV2RawConfig = PollFunctionV2
+export type HandlerFunctionCallV2Update = Partial<PollFunctionV2>
 
-	// Debouncing. Default is 0
-	debounceCount?: number
-
-	// Functions
-	functions: FunctionCallerConfig | null
-
-	// Trigger
-	triggerOn: 'always' | 'filter'
-	latch?: boolean // If triggerOn = 'always' latch must be false.
-
-	// Filter
-	filterVersion: string | null
-	filter: FilterConfig | null
-}
-
-export type HandlerFunctionCallV2Update =
-	Partial<HandlerFunctionCallV2RawConfig>
-
-export type HandlerFunctionCallV2RawResponse = {
+export type HandlerFunctionCallV2RawResponse = PollFunctionV2 & {
 	id: number
 	created_at: string
-	// Poll period configuration
-	timeBase: TimeBase
-	nBlocks?: number
-	timePeriod?: string | null // Grafana style time format
-	startTime?: number // Start time to start the trigger, and the reference point. If 0, it'll be ignored
-	debounceCount?: number
-	functions: FunctionCallerConfig | null
-	triggerOn: 'always' | 'filter'
-	latch?: boolean // If triggerOn = 'always' latch must be false.
-	filterVersion: string | null
-	filter: FilterConfig | null
-}
-
-export type HandlerFunctionCallV2RawUpdate = {
-	address?: string
-	function?: string
-	abi?: any
-	constant?: number
-	nBlocks?: number
-	confition?: Condition
-	fixedArgs?: (string | number)[]
-	responseArgIndex?: number
-	responseArgDecimals?: number
 }
 
 const timePeriodRegex = /^(\d+)([SMHD])$/i
@@ -119,7 +73,8 @@ const schema = yup.object({
 				: schema.nullable().default(null)
 		)
 		.required(),
-	filter: FilterBuilder.schema().when('triggerOn', ([triggerOn], schema) =>
+	filter: FilterBuilder.schema()
+		.when('triggerOn', ([triggerOn], schema) =>
 			triggerOn === 'filter'
 				? schema.required()
 				: schema.nullable().default(null)

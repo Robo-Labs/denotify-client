@@ -145,10 +145,14 @@ export class TriggerHelper {
 		trigger: Partial<Trigger>
 	): Trigger {
 		switch (id) {
-			case 'PollFunctionV2': return HandlerFunctionCallV2.validate(trigger as PollFunctionV2)
-			case 'PollFunctionV1': return HandlerFunctionCall.validate(trigger as PollFunctionV1)
-			case 'OnchainEventV1': return HandlerOnchainEvent.validate(trigger as OnchainEventV1)
-			case 'OnchainEventV2': return HandlerOnchainEventV2.validate(trigger as OnchainEventV2)
+			case 'PollFunctionV2':
+				return HandlerFunctionCallV2.validate(trigger as PollFunctionV2)
+			case 'PollFunctionV1':
+				return HandlerFunctionCall.validate(trigger as PollFunctionV1)
+			case 'OnchainEventV1':
+				return HandlerOnchainEvent.validate(trigger as OnchainEventV1)
+			case 'OnchainEventV2':
+				return HandlerOnchainEventV2.validate(trigger as OnchainEventV2)
 			default:
 				throw new Error('Invalid Trigger ID')
 		}
