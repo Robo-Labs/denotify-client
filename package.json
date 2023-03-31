@@ -1,7 +1,7 @@
 {
 	"name": "denotify-client",
 	"private": false,
-	"version": "1.1.17",
+	"version": "1.1.18",
 	"main": "./dist/denotify-client.cjs",
 	"module": "./dist/denotify-client.mjs",
 	"types": "./dist/denotify-client.d.ts",
