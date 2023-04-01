@@ -11,5 +11,7 @@ export {
 	FilterBuilder,
 	FunctionBuilder,
 	Notification,
-	Trigger
+	Trigger,
+	Alert,
+	AlertUpdate
 }

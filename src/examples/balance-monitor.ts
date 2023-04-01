@@ -43,16 +43,18 @@ async function main() {
 	console.log(triggerId)
 
 	// Update the period to every 10s
-	await api.updateTrigger(triggerId, { timePeriod: '10s' })
+	await api.updateAlert(triggerId, { trigger: { timePeriod: '10s' }})
 
 	// Update the Filter using the filter builder
 	const filter = FilterBuilder.new()
 		.addCondition('WHERE', 'func_0_ret_0', 'Number', 'gt', 3)
 		.finalise()
-	await api.updateTrigger(13, {
-		triggerOn: 'filter',
-		filter,
-		filterVersion: FilterBuilder.version()
+	await api.updateAlert(13, {
+		trigger: {
+			triggerOn: 'filter',
+			filter,
+			filterVersion: FilterBuilder.version()
+		}
 	})
 
 	// Delete the filter in 10s
