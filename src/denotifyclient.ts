@@ -10,15 +10,16 @@ import {
 } from './notifications/notification.js'
 import { DeNotifyOptions } from './types/types.js'
 import {
+	FieldDescription,
 	Network,
 	Trigger,
 	TriggerHelper,
 	TriggerRawConfig,
 	TriggerRawResponse,
 	TriggerTypeId,
-	TriggerTypeRawId,
-	TriggerUpdate
+	TriggerTypeRawId
 } from './triggers/trigger.js'
+import * as yup from 'yup'
 
 const toFunctionsUrl = (id: string) => {
 	return `https://${id}.functions.supabase.co/`
@@ -48,10 +49,18 @@ export type Alert = {
 	name: string
 	network: Network
 	id?: number
+	enabled?: boolean
 	triggerId: TriggerTypeId
 	trigger: Trigger
 	notificationId: NotificationTypeId
 	notification: Notification
+}
+
+export type AlertUpdate = {
+	name?: string
+	enabled?: boolean
+	trigger?: Partial<Trigger>
+	notification?: Partial<Notification>
 }
 
 type AlertRawCreate = {
@@ -143,6 +152,37 @@ export class DeNotifyClient {
 		return alert
 	}
 
+	private async updateRawTrigger(
+		id: number,
+		update: { name?: string; enabled?: boolean }
+	) {
+		const body = await yup
+			.object({
+				name: yup.string().optional(),
+				enabled: yup.boolean().optional()
+			})
+			.validate(update)
+		await this.request('patch', `alerts/trigger/${id}`, { body })
+	}
+
+	public async updateAlert(id: number, update: AlertUpdate) {
+		const promises: Promise<any>[] = []
+		const { trigger, notification, ...alert } = update
+		if (alert.name || alert.enabled) {
+			promises.push(this.updateRawTrigger(id, alert))
+		}
+
+		if (trigger) {
+			promises.push(this.updateRawHandler(id, trigger))
+		}
+
+		if (notification) {
+			promises.push(this.updateRawNotify(id, notification))
+		}
+		await Promise.all(promises)
+		return await this.getAlert(id)
+	}
+
 	public async deleteAlert(id: number) {
 		const alerts = await this.request('delete', `alerts/${id}`)
 		return alerts
@@ -151,6 +191,7 @@ export class DeNotifyClient {
 	private async decode(raw: AlertRawResponse): Promise<Alert> {
 		const alert: Alert = {
 			id: raw.alertId,
+			enabled: raw.trigger.enabled,
 			name: raw.trigger.nickname,
 			network: raw.trigger.network,
 			triggerId: TriggerHelper.RawTypeToSimpleType(raw.trigger.type),
@@ -205,6 +246,14 @@ export class DeNotifyClient {
 		return res.data
 	}
 
+	public readFields(
+		typeId: TriggerTypeId,
+		trigger: Trigger,
+		abis: { [key: string]: any }
+	): FieldDescription[] {
+		return TriggerHelper.readFields(typeId, trigger, abis)
+	}
+
 	public async getAbi(
 		network: string,
 		address: string
@@ -218,24 +267,16 @@ export class DeNotifyClient {
 		return ret.hash
 	}
 
-	public async setAlertName(_triggerId: number, _name: string) {
-		throw new Error('Not yet supported - Sorry!')
+	private async updateRawNotify(id: number, update: Partial<Notification>) {
+		// TODO - argument validation
+		const ret = await this.request('patch', `alerts/notify/${id}`, {
+			body: update
+		})
+		return ret
 	}
 
-	public async enableAlert(_triggerId: number) {
-		throw new Error('Not yet supported - Sorry!')
-	}
-
-	public async disableAlert(_triggerId: number) {
-		throw new Error('Not yet supported - Sorry!')
-	}
-
-	public async updateNotification(_triggerId: number) {
-		throw new Error('Not yet supported - Sorry!')
-	}
-
-	public async updateTrigger(triggerId: number, update: TriggerUpdate) {
-		// TODO - Input validation
+	private async updateRawHandler(triggerId: number, update: Partial<Trigger>) {
+		// TODO - argument validation
 		const ret = await this.request(
 			'patch',
 			`alerts/trigger-handler/${triggerId}`,

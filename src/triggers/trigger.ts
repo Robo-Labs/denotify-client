@@ -104,6 +104,14 @@ export type TriggerRawResponse = {
 	handler: HandlerRawResponse
 }
 
+export type FieldDescription = {
+	source: string
+	label: string
+	type: string
+	key: string
+	index?: number
+}
+
 export class TriggerHelper {
 	public static SimpleToRaw(
 		name: string,
@@ -192,6 +200,25 @@ export class TriggerHelper {
 				return 'OnchainEventV1'
 			case 'handler_onchain_event_v2':
 				return 'OnchainEventV2'
+			default:
+				throw new Error('Invalid Trigger ID')
+		}
+	}
+
+	public static readFields(
+		id: TriggerTypeId,
+		trigger: Trigger,
+		abis: { [key: string]: any }
+	): FieldDescription[] {
+		switch (id) {
+			case 'PollFunctionV2':
+				return HandlerFunctionCallV2.readFields(trigger as PollFunctionV2, abis)
+			// case 'PollFunctionV1':
+			// 	return HandlerFunctionCall.readFields(trigger as PollFunctionV1)
+			// case 'OnchainEventV1':
+			// 	return HandlerOnchainEvent.readFields(trigger as OnchainEventV1)
+			case 'OnchainEventV2':
+				return HandlerOnchainEventV2.readFields(trigger as OnchainEventV2, abis)
 			default:
 				throw new Error('Invalid Trigger ID')
 		}

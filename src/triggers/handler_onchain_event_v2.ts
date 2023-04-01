@@ -1,6 +1,11 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
-import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
+import {
+	FieldDescription,
+	HandlerRawConfig,
+	Network,
+	TriggerRawConfig
+} from './trigger.js'
 import * as yup from 'yup'
 
 const HANDLER_ONCHAIN_EVENT_V2_RAW_ID = 'handler_onchain_event_v2'
@@ -16,7 +21,7 @@ export type OnchainEventV2 = {
 	debounceCount?: number
 
 	// Functions
-	functions: FunctionCallerConfig | null
+	functions: FunctionCallerConfig[] | null
 
 	// Trigger
 	triggerOn?: 'always' | 'filter' // Default = 'always'
@@ -37,7 +42,7 @@ export type HandlerOnchainEventV2RawConfig = {
 	debounceCount?: number
 
 	// Functions
-	functions: FunctionCallerConfig | null
+	functions: FunctionCallerConfig[] | null
 
 	// Trigger
 	triggerOn: 'always' | 'filter'
@@ -58,7 +63,7 @@ export type HandlerOnchainEventV2RawResponse = {
 	abiHash: string
 	event: string
 	debounceCount?: number
-	functions: FunctionCallerConfig | null
+	functions: FunctionCallerConfig[] | null
 	triggerOn: 'always' | 'filter'
 	latch: boolean // If triggerOn = 'always' latch must be false.
 	filterVersion: string | null
@@ -70,7 +75,7 @@ export type HandlerOnchainEventV2RawUpdate = {
 	abiHash: string
 	event: string
 	debounceCount?: number
-	functions: FunctionCallerConfig | null
+	functions: FunctionCallerConfig[] | null
 	triggerOn: 'always' | 'filter'
 	latch: boolean // If triggerOn = 'always' latch must be false.
 	filterVersion: string | null
@@ -93,6 +98,50 @@ const schema = yup.object({
 		.required()
 })
 
+const solidityToTypescriptType = (type: string) => {
+	return type
+}
+
+type Input = {
+	name: string
+	type: string
+	indexed: boolean
+	internalType: string
+	components?: Input[]
+}
+
+const flattenFields = (
+	inputs: Input[],
+	source: string,
+	fields: FieldDescription[] = [],
+	keyPrefix = '',
+	labelPrefix = ''
+) => {
+	inputs.forEach((input, index) => {
+		const isArray = input.type.includes('[')
+		const array = isArray ? '_[]' : ''
+		if (input.components) {
+			const id = input.name === '' ? `${index}` : input.name
+			flattenFields(
+				input.components,
+				source,
+				fields,
+				`${keyPrefix}${index}${array}_`,
+				`${id}${isArray ? '[]' : ''}.`
+			)
+		} else {
+			fields.push({
+				source,
+				label: `${labelPrefix}${input.name}`,
+				type: solidityToTypescriptType(input.type),
+				key: `${keyPrefix}${index}${array}`,
+				index
+			})
+		}
+	})
+	return fields
+}
+
 export class HandlerOnchainEventV2 {
 	public static async SimpleToRaw(
 		name: string,
@@ -110,5 +159,42 @@ export class HandlerOnchainEventV2 {
 
 	public static validate(options: Partial<OnchainEventV2>): HandlerRawConfig {
 		return schema.validateSync(options)
+	}
+
+	public static readFields(
+		trigger: OnchainEventV2,
+		abis: { [key: string]: any }
+	): FieldDescription[] {
+		let fields: FieldDescription[] = [
+			/* eslint-disable */
+			{ source: 'defaults', label: 'Network', type: 'string', key: 'network' },
+			{ source: 'defaults', label: 'Timestamp', type: 'number', key: 'timestamp' },
+			{ source: 'defaults', label: 'Time GMT', type: 'string', key: 'timeStringGMT' },
+			{ source: 'defaults', label: 'Block', type: 'number', key: 'block' },
+			{ source: 'defaults', label: 'Time Period', type: 'string', key: 'timePeriod' },
+			{ source: 'defaults', label: 'Block Hash', type: 'string', key: 'blockHash' },
+			{ source: 'defaults', label: 'Transaction Hash', type: 'string', key: 'txHash' },
+			{ source: 'defaults', label: 'Event', type: 'string', key: 'event' },
+			/* eslint-enable */
+		]
+
+		const event = abis[trigger.abiHash].find(
+			(e: any) => e.name === trigger.event
+		)
+		fields = flattenFields(
+			event.inputs,
+			`${trigger.event} Event`,
+			fields,
+			'param_'
+		)
+		// console.log(fields)
+
+		if (!trigger.functions) return fields
+		// order the abis
+		const orderedAbis = trigger.functions.map(e => abis[e.abiHash])
+		return [
+			...FunctionBuilder.readFields(trigger.functions, orderedAbis),
+			...fields
+		]
 	}
 }

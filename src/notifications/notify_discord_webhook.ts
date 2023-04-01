@@ -28,7 +28,7 @@ export type DiscordWebhook = {
 }
 
 const ImageSchema = yup.object({
-	url: yup.string().url(),
+	url: yup.string(),
 	height: yup.number(),
 	width: yup.number()
 })

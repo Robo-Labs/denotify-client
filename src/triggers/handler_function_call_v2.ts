@@ -1,6 +1,11 @@
 import { FunctionBuilder, FunctionCallerConfig } from '../functionbuilder.js'
 import { FilterBuilder, FilterConfig } from '../util/filter.js'
-import { HandlerRawConfig, Network, TriggerRawConfig } from './trigger.js'
+import {
+	FieldDescription,
+	HandlerRawConfig,
+	Network,
+	TriggerRawConfig
+} from './trigger.js'
 import * as yup from 'yup'
 
 type TimeBase = 'blocks' | 'time'
@@ -23,7 +28,7 @@ export type PollFunctionV2 = {
 	debounceCount?: number
 
 	// Functions
-	functions: FunctionCallerConfig | null
+	functions: FunctionCallerConfig[] | null
 
 	// Trigger
 	triggerOn: 'always' | 'filter'
@@ -105,5 +110,44 @@ export class HandlerFunctionCallV2 {
 		options: Partial<PollFunctionV2>
 	): Promise<PollFunctionV2> {
 		return schema.validate(options)
+	}
+
+	public static readFields(
+		trigger: PollFunctionV2,
+		abis: { [key: string]: any }
+	): FieldDescription[] {
+		const defaults: FieldDescription[] = [
+			/* eslint-disable */
+			{ source: 'defaults', label: 'Network', type: 'string', key: 'network' },
+			{
+				source: 'defaults',
+				label: 'Timestamp',
+				type: 'number',
+				key: 'timestamp'
+			},
+			{
+				source: 'defaults',
+				label: 'Time GMT',
+				type: 'number',
+				key: 'timeStringGMT'
+			},
+			{ source: 'defaults', label: 'Block', type: 'number', key: 'block' },
+			{
+				source: 'defaults',
+				label: 'Time Period',
+				type: 'number',
+				key: 'timePeriod'
+			}
+			/* eslint-enable */
+		]
+
+		if (!trigger.functions) return defaults
+		// order the abis
+		const orderedAbis = trigger.functions.map(e => abis[e.abiHash])
+		console.log(orderedAbis)
+		return [
+			...FunctionBuilder.readFields(trigger.functions, orderedAbis),
+			...defaults
+		]
 	}
 }
