@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js'
-import axios from 'axios'
 import {
 	Notification,
 	NotificationHelper,
@@ -146,10 +145,10 @@ export class DeNotifyClient {
 		return Promise.all(raw.map(raw => this.decode(raw)))
 	}
 
-	public async createAlert(config: Alert) {
+	public async createAlert(config: Alert): Promise<number> {
 		const body = await this.encode(config)
-		const alert = await this.request('post', `alerts`, { body })
-		return alert
+		const id = await this.request('post', `alerts`, { body })
+		return id as number
 	}
 
 	private async updateRawTrigger(
@@ -236,14 +235,13 @@ export class DeNotifyClient {
 
 		const payload: any = {
 			method,
-			url: url.toString(),
 			headers: this.headers
 		}
 		if (options.body) {
-			payload.data = options.body
+			payload.body = JSON.stringify(options.body)
 		}
-		const res = await axios(payload)
-		return res.data
+		const res = await fetch(url.toString(), payload)
+		return res.json() as any
 	}
 
 	public readFields(
