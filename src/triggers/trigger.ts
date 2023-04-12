@@ -207,18 +207,24 @@ export class TriggerHelper {
 
 	public static readFields(
 		id: TriggerTypeId,
-		trigger: Trigger,
+		trigger: Partial<Trigger>,
 		abis: { [key: string]: any }
 	): FieldDescription[] {
 		switch (id) {
 			case 'PollFunctionV2':
-				return HandlerFunctionCallV2.readFields(trigger as PollFunctionV2, abis)
+				return HandlerFunctionCallV2.readFields(
+					trigger as Partial<PollFunctionV2>,
+					abis
+				)
 			// case 'PollFunctionV1':
 			// 	return HandlerFunctionCall.readFields(trigger as PollFunctionV1)
 			// case 'OnchainEventV1':
 			// 	return HandlerOnchainEvent.readFields(trigger as OnchainEventV1)
 			case 'OnchainEventV2':
-				return HandlerOnchainEventV2.readFields(trigger as OnchainEventV2, abis)
+				return HandlerOnchainEventV2.readFields(
+					trigger as Partial<PollFunctionV2>,
+					abis
+				)
 			default:
 				throw new Error('Invalid Trigger ID')
 		}

@@ -50,6 +50,7 @@ export type Alert = {
 	network: Network
 	id?: number
 	enabled?: boolean
+	triggered?: boolean
 	triggerId: TriggerTypeId
 	trigger: Trigger
 	notificationId: NotificationTypeId
@@ -168,7 +169,7 @@ export class DeNotifyClient {
 	public async updateAlert(id: number, update: AlertUpdate) {
 		const promises: Promise<any>[] = []
 		const { trigger, notification, ...alert } = update
-		if (alert.name || alert.enabled) {
+		if (alert.name != undefined || alert.enabled != undefined) {
 			promises.push(this.updateRawTrigger(id, alert))
 		}
 
@@ -194,6 +195,7 @@ export class DeNotifyClient {
 			enabled: raw.trigger.enabled,
 			name: raw.trigger.nickname,
 			network: raw.trigger.network,
+			triggered: raw.trigger.triggered,
 			triggerId: TriggerHelper.RawTypeToSimpleType(raw.trigger.type),
 			trigger: await TriggerHelper.RawToSimple(raw.trigger),
 			notificationId: NotificationHelper.RawTypeToSimpleType(
@@ -235,19 +237,22 @@ export class DeNotifyClient {
 		}
 
 		const payload: any = {
-			method,
+			method: method.toUpperCase(),
 			headers: this.headers
 		}
 		if (options.body) {
 			payload.body = JSON.stringify(options.body)
 		}
 		const res = await fetch(url.toString(), payload)
+		if (res.status !== 200) {
+			throw new Error(res.statusText)
+		}
 		return res.json() as any
 	}
 
 	public readFields(
 		typeId: TriggerTypeId,
-		trigger: Trigger,
+		trigger: Partial<Trigger>,
 		abis: { [key: string]: any }
 	): FieldDescription[] {
 		return TriggerHelper.readFields(typeId, trigger, abis)

@@ -113,7 +113,7 @@ export class HandlerFunctionCallV2 {
 	}
 
 	public static readFields(
-		trigger: PollFunctionV2,
+		trigger: Partial<PollFunctionV2>,
 		abis: { [key: string]: any }
 	): FieldDescription[] {
 		const defaults: FieldDescription[] = [
@@ -142,6 +142,7 @@ export class HandlerFunctionCallV2 {
 		]
 
 		if (!trigger.functions) return defaults
+		console.log(trigger.functions)
 		// order the abis
 		const orderedAbis = trigger.functions.map(e => abis[e.abiHash])
 		console.log(orderedAbis)

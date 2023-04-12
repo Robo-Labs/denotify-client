@@ -162,7 +162,7 @@ export class HandlerOnchainEventV2 {
 	}
 
 	public static readFields(
-		trigger: OnchainEventV2,
+		trigger: Partial<OnchainEventV2>,
 		abis: { [key: string]: any }
 	): FieldDescription[] {
 		let fields: FieldDescription[] = [
@@ -177,6 +177,11 @@ export class HandlerOnchainEventV2 {
 			{ source: 'defaults', label: 'Event', type: 'string', key: 'event' },
 			/* eslint-enable */
 		]
+		if (!trigger.abiHash)
+			throw new Error('abiHash is required for onchain event v2')
+
+		if (!abis[trigger.abiHash])
+			throw new Error('ABI for hash not found in abis')
 
 		const event = abis[trigger.abiHash].find(
 			(e: any) => e.name === trigger.event
@@ -187,7 +192,6 @@ export class HandlerOnchainEventV2 {
 			fields,
 			'param_'
 		)
-		// console.log(fields)
 
 		if (!trigger.functions) return fields
 		// order the abis
