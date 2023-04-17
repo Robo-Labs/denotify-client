@@ -19,7 +19,6 @@ import {
 	TriggerTypeRawId
 } from './triggers/trigger.js'
 import * as yup from 'yup'
-import path from 'path'
 
 const toFunctionsUrl = (id: string) => {
 	return `https://${id}.functions.supabase.co/`
@@ -224,10 +223,10 @@ export class DeNotifyClient {
 
 	private async request(
 		method: 'get' | 'post' | 'patch' | 'delete',
-		endpoint: string,
+		pathname: string,
 		options: { body?: any; params?: any } = {}
 	) {
-		const url = new URL(path.join(this.url, endpoint))
+		const url = new URL(pathname, this.url)
 
 		// append params
 		if (options.params) {
