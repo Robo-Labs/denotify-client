@@ -19,7 +19,7 @@ import {
 	TriggerTypeRawId
 } from './triggers/trigger.js'
 import * as yup from 'yup'
-import path from 'node:path'
+import path from 'path'
 
 const toFunctionsUrl = (id: string) => {
 	return `https://${id}.functions.supabase.co/`
