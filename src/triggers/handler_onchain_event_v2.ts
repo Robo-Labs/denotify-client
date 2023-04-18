@@ -168,13 +168,38 @@ export class HandlerOnchainEventV2 {
 		let fields: FieldDescription[] = [
 			/* eslint-disable */
 			{ source: 'defaults', label: 'Network', type: 'string', key: 'network' },
-			{ source: 'defaults', label: 'Timestamp', type: 'number', key: 'timestamp' },
-			{ source: 'defaults', label: 'Time GMT', type: 'string', key: 'timeStringGMT' },
+			{
+				source: 'defaults',
+				label: 'Timestamp',
+				type: 'number',
+				key: 'timestamp'
+			},
+			{
+				source: 'defaults',
+				label: 'Time GMT',
+				type: 'string',
+				key: 'timeStringGMT'
+			},
 			{ source: 'defaults', label: 'Block', type: 'number', key: 'block' },
-			{ source: 'defaults', label: 'Time Period', type: 'string', key: 'timePeriod' },
-			{ source: 'defaults', label: 'Block Hash', type: 'string', key: 'blockHash' },
-			{ source: 'defaults', label: 'Transaction Hash', type: 'string', key: 'txHash' },
-			{ source: 'defaults', label: 'Event', type: 'string', key: 'event' },
+			{
+				source: 'defaults',
+				label: 'Time Period',
+				type: 'string',
+				key: 'timePeriod'
+			},
+			{
+				source: 'defaults',
+				label: 'Block Hash',
+				type: 'string',
+				key: 'blockHash'
+			},
+			{
+				source: 'defaults',
+				label: 'Transaction Hash',
+				type: 'string',
+				key: 'txHash'
+			},
+			{ source: 'defaults', label: 'Event', type: 'string', key: 'event' }
 			/* eslint-enable */
 		]
 		if (!trigger.abiHash)

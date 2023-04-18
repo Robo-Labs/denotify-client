@@ -18,7 +18,6 @@ import {
 	TriggerTypeId,
 	TriggerTypeRawId
 } from './triggers/trigger.js'
-import * as yup from 'yup'
 
 const toFunctionsUrl = (id: string) => {
 	return `https://${id}.functions.supabase.co/`
@@ -156,12 +155,10 @@ export class DeNotifyClient {
 		id: number,
 		update: { name?: string; enabled?: boolean }
 	) {
-		const body = await yup
-			.object({
-				name: yup.string().optional(),
-				enabled: yup.boolean().optional()
-			})
-			.validate(update)
+		const body: any = {}
+		if (update.name !== undefined) body.nickname = update.name
+		if (update.enabled !== undefined) body.enabled = update.enabled
+		if (Object.keys(body).length === 0) throw new Error('No suitable fields')
 		await this.request('patch', `alerts/trigger/${id}`, { body })
 	}
 

@@ -43,7 +43,7 @@ async function main() {
 	console.log(triggerId)
 
 	// Update the period to every 10s
-	await api.updateAlert(triggerId, { trigger: { timePeriod: '10s' }})
+	await api.updateAlert(triggerId, { trigger: { timePeriod: '10s' } })
 
 	// Update the Filter using the filter builder
 	const filter = FilterBuilder.new()
