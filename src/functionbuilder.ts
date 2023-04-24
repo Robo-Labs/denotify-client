@@ -37,7 +37,7 @@ export class FunctionBuilder {
 
 			return func.outputs.map((e: any, index: number) => {
 				return {
-					source: `function:${config.function}:${i}`,
+					source: `function:${config.function}:${index}`,
 					name: e.name,
 					type: e.type,
 					key: `func_${i}_ret_${index}`,
@@ -58,11 +58,14 @@ export class FunctionBuilder {
 		abi: any,
 		abiHash?: string
 	) {
-		console.log(abiHash)
+		const fn = abi.find((e: any) => e.name === func)
+		if (!fn) throw new Error('function not in ABI')
+		if (fn.type !== 'function')
+			throw new Error(`${fn.name} is not a function, it has type ${fn.type}`)
+
 		const contract = new ethers.Contract(address, abi)
 		contract.interface.encodeFunctionData(func, args)
 		abiHash = abiHash || (await this.getAbiHash(abi))
-		console.log(abiHash)
 		this.data.push({
 			address,
 			bytecode: contract.interface.encodeFunctionData(func, args),
