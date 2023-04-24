@@ -22,10 +22,18 @@ import {
 	NotifyTelegramRawUpdate,
 	Telegram
 } from './notify_telegram.js'
+import {
+	NotifyWebhook,
+	NotifyWebhookRawConfig,
+	NotifyWebhookRawId,
+	NotifyWebhookRawResponse,
+	NotifyWebhookRawUpdate,
+	Webhook
+} from './notify_webhook.js'
 
 // Types user is expossed to
-export type NotificationTypeId = 'Discord' | 'Telegram' | 'Email'
-export type NotificationConfig = DiscordWebhook | Telegram | Email
+export type NotificationTypeId = 'Discord' | 'Telegram' | 'Email' | 'Webhook'
+export type NotificationConfig = DiscordWebhook | Telegram | Email | Webhook
 
 export type Notification = NotificationConfig & {
 	error?: boolean
@@ -38,17 +46,21 @@ export type NotifyRawId =
 	| NotifyDiscordWebhookRawId
 	| NotifyTelegramRawId
 	| NotifyEmailRawId
+	| NotifyWebhookRawId
 export type NotifyRawConfig =
 	| NotifyDiscordWebhookRawConfig
 	| NotifyTelegramRawConfig
 	| NotifyEmailRawConfig
+	| NotifyWebhookRawConfig
 export type NotifyRawResponse =
 	| NotifyDiscordWebhookRawResponse
 	| NotifyTelegramRawResponse
 	| NotifyEmailRawResponse
+	| NotifyWebhookRawResponse
 export type NotifyRawUpdate =
 	| NotifyDiscordWebhookRawUpdate
 	| NotifyTelegramRawUpdate
+	| NotifyWebhookRawUpdate
 	| NotifyEmailRawUpdate
 
 export type NotificationRawConfig = {
@@ -77,6 +89,8 @@ export class NotificationHelper {
 				return NotifyTelegram.SimpleToRaw(config as Telegram)
 			case 'Email':
 				return NotifyEmail.SimpleToRaw(config as Email)
+			case 'Webhook':
+				return NotifyWebhook.SimpleToRaw(config as Webhook)
 		}
 	}
 
@@ -97,6 +111,8 @@ export class NotificationHelper {
 				return 'Telegram'
 			case 'notify_email':
 				return 'Email'
+			case 'notify_webhook':
+				return 'Webhook'
 		}
 	}
 
@@ -108,6 +124,8 @@ export class NotificationHelper {
 				return 'notify_telegram'
 			case 'Email':
 				return 'notify_email'
+			case 'Webhook':
+				return 'notify_webhook'
 		}
 	}
 }

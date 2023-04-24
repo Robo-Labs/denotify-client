@@ -7,6 +7,7 @@ import {
 import { DiscordWebhook } from './notifications/notify_discord_webhook.js'
 import { Email } from './notifications/notify_email.js'
 import { Telegram } from './notifications/notify_telegram.js'
+import { Webhook } from './notifications/notify_webhook.js'
 import { PollFunctionV1 } from './triggers/handler_function_call.js'
 import { PollFunctionV2 } from './triggers/handler_function_call_v2.js'
 import { OnchainEventV1 } from './triggers/handler_onchain_event.js'
@@ -68,6 +69,8 @@ export class AlertBuilder {
 			? Telegram
 			: TNotificationTypeId extends 'Email'
 			? Email
+			: TNotificationTypeId extends 'Webhook'
+			? Webhook
 			: never
 	): AlertBuilder {
 		this.notificationId = id
