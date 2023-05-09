@@ -151,6 +151,17 @@ export class DeNotifyClient {
 		return id as number
 	}
 
+	public async notificationTest(config: {
+		trigger: any
+		triggered: boolean
+		block: number
+		data: any
+		id: number
+	}): Promise<number> {
+		const id = await this.request('post', `notification-test`, { body: config })
+		return id as number
+	}
+
 	private async updateRawTrigger(
 		id: number,
 		update: { name?: string; enabled?: boolean }
